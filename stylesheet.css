@@ -1,11 +1,28 @@
-body {
-  margin: 0;
+/* 以前の全体を覆うスタイルを無効化 */
+html, body {
+    margin: 0;
+    padding: 0;
+    height: auto; /* 全体ではなくコンテンツの高さに合わせる */
+    overflow-x: hidden; /* 横スクロールを禁止 */
 }
 
-.cesium {
-  position: absolute;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
+/* 🌎 Cesiumコンテナに固定のサイズを設定する */
+#cesium {
+    /* 以前の position: absolute; top: 0; bottom: 0; はすべて削除！ */
+    position: relative; /* 標準的な配置に戻す */
+    width: 80%; /* ページの幅の80%に設定 */
+    height: 600px; /* 高さを600pxに固定 */
+    margin: 40px auto; /* 上下左右に余白を設定し、中央に配置 */
+    border: 1px solid #ccc; /* 境界線をつけてセクション感を出す */
 }
+
+/* 画面全体を覆わないため、以前の .cesium スタイルは不要 */
+/*
+.cesium {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+*/
