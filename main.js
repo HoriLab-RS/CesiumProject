@@ -143,14 +143,14 @@ window.onload = function() {
         // --- 開始座標を固定 ---
         const startLongitude = 130.425408; // 指定された経度
         const startLatitude = 33.622125;  // 指定された緯度
-        const targetHeight = 11;         // 最初の移動先の海抜高さ (ループで補正)
+        const targetHeight = 11;          // 最初の移動先の海抜高さ (ループで補正)
 
-        // 指定された座標の高さ1.5mにカメラを移動
+        // 指定された座標の高さにカメラを移動
         viewer.camera.flyTo({
             destination: Cesium.Cartesian3.fromDegrees(
                 startLongitude,
                 startLatitude,
-                targetHeight // 一旦、海抜 n mに移動
+                targetHeight 
             ),
             orientation: {
                 heading: Cesium.Math.toRadians(0.0), // 真北を向く
@@ -158,8 +158,12 @@ window.onload = function() {
                 roll: 0.0
             },
             duration: 0.5 // 短いアニメーション
-        });
+        }); // flyTo の終了
 
+        // カメラの高さを常に1.5mに保つための更新ループを開始
+        startFirstPersonUpdateLoop(); 
+        
+    }
 
     // 13. 一人称視点用の更新ループ関数とリスナー解除用変数
     let firstPersonUpdateListener = null; 
