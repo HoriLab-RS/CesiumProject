@@ -1,10 +1,12 @@
-(function () {
+// main.js の内容をすべて以下のイベントリスナーで囲みます
+window.addEventListener('DOMContentLoaded', (event) => {
+    
     "use strict";
 
     // 1. Ion トークンの設定
     Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJiYTEzNmFmYS1hNzA5LTQ2YjQtYTc0OC1iZTg3ODNhOTVlMTIiLCJpZCI6MzQ2ODE0LCJpYXQiOjE3NjE0Njg5Mjh9._9Bw9jDFFjHSKkrklCs3s_zMuPg7q3flgzezAHf7mio';
 
-    // 2. ビューアの初期化とベースマップの有効化 (最も重要な変数定義)
+    // 2. ビューアの初期化とベースマップの有効化
     var viewer = new Cesium.Viewer("cesium", {
         baseLayerPicker: false,
         baseLayer: true 
@@ -24,8 +26,6 @@
             heading: 0, pitch: -1.4, roll: 0
         }
     });
-
-    // --- Entity と Button の機能 ---
 
     // 5. ズームイン処理の関数定義
     function zoomToLocation(lon, lat, height) {
@@ -51,7 +51,7 @@
     // 7. ボタンイベントリスナー
     var button = document.getElementById("zoomToKyudai");
 
-    // button が null (見つからない) でなければ、イベントを追加する（安全策）
+    // HTML要素が確実に読み込まれた後なので、ここでボタン処理を追加
     if (button) {
         button.addEventListener('click', function() {
             var kyudaiLon = 130.425757; 
@@ -62,4 +62,4 @@
         });
     }
     
-})();
+});
