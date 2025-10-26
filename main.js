@@ -7,7 +7,22 @@ Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOi
 var viewer = new Cesium.Viewer("cesium");
 
 
-// アセットID 2275207 を指定して、googleの3Dデータレイヤーを追加します。
+(function () {
+    "use strict";
+
+
+    // 【修正点 1】ベースマップを読み込まない設定を追加
+    var viewer = new Cesium.Viewer("cesium", {
+        baseLayerPicker: false, // ベースレイヤー選択ウィジェットを非表示
+        // Cesiumのデフォルト画像を読み込まない
+        baseLayer: false
+    }); 
+
+    // 【修正点 2】デフォルトで入っている画像をすべて消去（重要）
+    viewer.scene.imageryLayers.removeAll();
+
+    // 【追加点】Google Photorealistic 3D Tiles の追加
+    // アセットID 2275207 を指定して、3Dデータレイヤーを追加します。
     viewer.scene.primitives.add(
         new Cesium.Cesium3DTileset({
             url: Cesium.IonResource.fromAssetId(2275207)
