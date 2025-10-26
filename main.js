@@ -40,8 +40,8 @@ roll: 0
     // ボタンがクリックされたら、特定の場所にズームインする
     button.addEventListener('click', function() {
         // 九州大学博物館の座標
-        var kyudaiLon = 130.4357; 
-        var kyudaiLat = 33.6190;
+        var kyudaiLon = 130.425757; 
+        var kyudaiLat = 33.622580;
         var height = 1000;
 
         zoomToLocation(kyudaiLon, kyudaiLat, height);
