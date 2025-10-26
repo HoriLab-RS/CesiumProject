@@ -44,6 +44,7 @@ window.onload = function() {
             color: Cesium.Color.RED, 
             outlineColor: Cesium.Color.WHITE,
             outlineWidth: 2
+            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0.0, 100.0)
         },
         description: `<h1>九州大学総合研究博物館</h1><p>ボタンでズームインするとピンが見えます。</p>`
     });
