@@ -20,12 +20,14 @@ window.onload = function() {
         })
     );
 
-    // 4. 初期視点の設定 (福岡市広域 80km) - 再修正
+    // 4. 初期視点の設定 (指定された座標、20km 上空から福岡市を見る)
     viewer.camera.setView({
-        // 【修正点 3】初期位置を福岡市俯瞰に戻す
-        destination: Cesium.Cartesian3.fromDegrees(130.45, 33.65, 80000), 
+        // 【修正点 3】初期位置を指定された座標に変更
+        destination: Cesium.Cartesian3.fromDegrees(130.360732, 33.565884, 20000),
         orientation: {
-            heading: 0, pitch: -1.4, roll: 0 // 若干下向きに見る
+            heading: Cesium.Math.toRadians(0.0), // 真北を向く
+            pitch: Cesium.Math.toRadians(-35.0), // 少し下向きに見る角度を調整
+            roll: 0.0
         }
     });
 
@@ -104,13 +106,13 @@ window.onload = function() {
     // 11. 三人称視点に戻す関数
     function switchToThirdPersonView() {
         isFirstPersonView = false;
-        if (toggleViewButton) toggleViewButton.textContent = "視点切替 (三人称)"; 
+        if (toggleViewButton) toggleViewButton.textContent = "視点切替 (三人称)";
 
         // デフォルトカメラ操作を有効化
         cameraController.enableRotate = true;
         cameraController.enableTranslate = true;
         cameraController.enableZoom = true;
-        cameraController.enableTilt = true; // Tilt を再度有効化
+        cameraController.enableTilt = true;
         cameraController.enableLook = true;
 
         // マウス操作をデフォルトに戻す
@@ -122,53 +124,61 @@ window.onload = function() {
             firstPersonUpdateListener();
             firstPersonUpdateListener = null;
         }
-        document.removeEventListener('keydown', handleKeyDown); 
-        document.removeEventListener('keyup', handleKeyUp);     
-        resetKeyFlags(); 
+        document.removeEventListener('keydown', handleKeyDown);
+        document.removeEventListener('keyup', handleKeyUp);
+        resetKeyFlags();
 
-        // カメラの軸制限を解除
-        cameraController.minimumPitch = Cesium.Math.toRadians(-90.0); // 垂直下向き制限解除
-        cameraController.maximumPitch = Cesium.Math.toRadians(90.0);  // 垂直上向き制限解除
+        // カメラの軸制限とピッチ制限を解除
+        viewer.camera.constrainedAxis = undefined;
+        cameraController.minimumPitch = Cesium.Math.toRadians(-90.0);
+        cameraController.maximumPitch = Cesium.Math.toRadians(90.0);
     }
 
     // 12. 一人称視点に切り替える関数
     function switchToFirstPersonView() {
         isFirstPersonView = true;
-        if (toggleViewButton) toggleViewButton.textContent = "視点切替 (一人称)"; 
+        if (toggleViewButton) toggleViewButton.textContent = "視点切替 (一人称)";
 
         // 不要なカメラ操作を無効化
-        cameraController.enableRotate = false; 
+        cameraController.enableRotate = false;
         cameraController.enableTranslate = false;
         cameraController.enableZoom = false;
-        cameraController.enableTilt = false; // Tilt を無効化して水平を保つ
+        cameraController.enableTilt = false;
         cameraController.enableLook = true; // Look操作自体は有効にする (視点回転用)
 
         // Look操作 (視点回転) を中ドラッグに割り当て
         cameraController.lookEventTypes = [Cesium.CameraEventType.MIDDLE_DRAG];
         // Rotate操作から中ドラッグを削除
-        cameraController.rotateEventTypes = [Cesium.CameraEventType.LEFT_DRAG]; 
+        cameraController.rotateEventTypes = [Cesium.CameraEventType.LEFT_DRAG];
 
-        // 【修正点 2】ピッチ（上下の傾き）を制限して水平を保つ
-        cameraController.minimumPitch = Cesium.Math.toRadians(-20.0); // 少し下を見るのを許可
-        cameraController.maximumPitch = Cesium.Math.toRadians(20.0); // 少し上を見るのを許可
+        // ピッチ（上下の傾き）を制限して水平を保つ
+        cameraController.minimumPitch = Cesium.Math.toRadians(-20.0);
+        cameraController.maximumPitch = Cesium.Math.toRadians(20.0);
+        // カメラの上方向をZ軸(地軸)に固定してロールを防ぐ
+        viewer.camera.constrainedAxis = Cesium.Cartesian3.UNIT_Z;
 
         // --- 開始座標を固定 ---
         const startLongitude = 130.425408;
         const startLatitude = 33.622125;
-        const targetHeight = 100; // ユーザーが見つけた高さ
+        // 【修正点 1】一人称視点の初期高さを 55m に変更
+        const targetHeight = 55;
 
         viewer.camera.flyTo({
-            destination: Cesium.Cartesian3.fromDegrees(startLongitude, startLatitude, targetHeight),
-            orientation: { heading: Cesium.Math.toRadians(0.0), pitch: Cesium.Math.toRadians(0.0), roll: 0.0 }, // 最初は完全に水平
+            destination: Cesium.Cartesian3.fromDegrees(startLongitude, startLatitude, targetHeight), // 一旦、海抜 55m に移動
+            orientation: {
+                heading: Cesium.Math.toRadians(0.0), // 真北を向く
+                pitch: Cesium.Math.toRadians(0.0), // 水平視線
+                roll: 0.0 // ロールも0に初期化
+            },
             duration: 0.5
         });
 
         // キーボードリスナーを設定
         document.addEventListener('keydown', handleKeyDown);
         document.addEventListener('keyup', handleKeyUp);
-        resetKeyFlags(); 
+        resetKeyFlags();
 
-        startFirstPersonUpdateLoop(); 
+        startFirstPersonUpdateLoop();
     }
 
     // キー入力イベントハンドラ (変更なし)
@@ -197,37 +207,38 @@ window.onload = function() {
 
     // 13. 一人称視点用の更新ループ関数 (高さ維持 + 移動処理)
     let firstPersonUpdateListener = null;
-    const moveSpeed = 5.0; 
-    let lastTime = null; // 【修正点 1-1】前回の時間記録用
+    const moveSpeed = 5.0;
+    let lastTime = null;
 
     function startFirstPersonUpdateLoop() {
         if (firstPersonUpdateListener) firstPersonUpdateListener();
-        lastTime = Cesium.JulianDate.now(); // 【修正点 1-2】ループ開始時に時間を初期化
+        lastTime = Cesium.JulianDate.now(); // 時間を初期化
 
         firstPersonUpdateListener = scene.preRender.addEventListener(function(scene, time) {
             if (!isFirstPersonView) return;
 
             const camera = viewer.camera;
-            const now = Cesium.JulianDate.now(); // 現在時刻を取得
-            
-            // 【修正点 1-3】経過時間を正しく計算
-            const elapsed = Cesium.JulianDate.secondsDifference(now, lastTime); 
-            lastTime = Cesium.JulianDate.clone(now, lastTime); // 次のフレームのために時間を更新
-            
-            // フレーム時間が極端に大きい/小さい場合は無視（安定性のため）
-            if (elapsed <= 0 || elapsed > 0.1) return; 
+            const now = Cesium.JulianDate.now();
+            let elapsed = 0;
+            if (lastTime) { // lastTime が null でないことを確認
+                 elapsed = Cesium.JulianDate.secondsDifference(now, lastTime);
+            }
+            lastTime = Cesium.JulianDate.clone(now, lastTime);
+
+            if (elapsed <= 0 || elapsed > 0.1) return; // elapsed が有効な場合のみ続行
 
             // --- カメラ移動処理 ---
-            const moveRate = moveSpeed * elapsed; 
+            const moveRate = moveSpeed * elapsed;
 
             if (keyFlags.moveForward) camera.moveForward(moveRate);
             if (keyFlags.moveBackward) camera.moveBackward(moveRate);
             if (keyFlags.moveLeft) camera.moveLeft(moveRate);
             if (keyFlags.moveRight) camera.moveRight(moveRate);
 
-            // --- 高さ維持処理 (変更なし) ---
+            // --- 高さ維持処理 ---
             const positionCartographic = Cesium.Cartographic.fromCartesian(camera.position);
-            const targetHeight = 100; // ユーザーが見つけた高さ
+            // 【修正点 2】ループ内で維持する高さを 55m に変更
+            const targetHeight = 55;
 
             let terrainHeight = 0;
             const cartographic = Cesium.Cartographic.fromCartesian(camera.position);
