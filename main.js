@@ -143,7 +143,7 @@ window.onload = function() {
         // --- 開始座標を固定 ---
         const startLongitude = 130.425408; // 指定された経度
         const startLatitude = 33.622125;  // 指定された緯度
-        const targetHeight = 200;          // 最初の移動先の海抜高さ (ループで補正)
+        const targetHeight = 100;          // 最初の移動先の海抜高さ (ループで補正)
 
         // 指定された座標の高さにカメラを移動
         viewer.camera.flyTo({
@@ -179,7 +179,7 @@ window.onload = function() {
 
             const camera = viewer.camera;
             const positionCartographic = Cesium.Cartographic.fromCartesian(camera.position);
-            const targetHeight = 200;
+            const targetHeight = 100;
 
             // 地形データを考慮して現在の地面の高さを取得 (非同期なので注意が必要だが、ここでは簡易的に)
             // もっと正確にするには Cesium.sampleTerrainMostDetailed などを使う
