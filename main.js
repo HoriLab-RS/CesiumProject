@@ -113,52 +113,58 @@ window.onload = function() {
 
 // 11. 三人称視点に戻す関数
     function switchToThirdPersonView() {
-        console.log("Switching back to Third Person View"); // デバッグ用ログ
+        console.log("Switching back to Third Person View");
         isFirstPersonView = false;
         if (toggleViewButton) toggleViewButton.textContent = "視点切替 (三人称)";
 
         // 【修正点 1】最初に一人称視点用の更新ループを確実に停止させる
         if (firstPersonUpdateListener) {
-            console.log("Removing preRender listener"); // デバッグ用ログ
-            firstPersonUpdateListener(); // リスナーを解除
+            console.log("Removing preRender listener");
+            firstPersonUpdateListener();
             firstPersonUpdateListener = null;
         } else {
-            console.log("No preRender listener to remove"); // デバッグ用ログ
+            console.log("No preRender listener to remove");
         }
 
-        // キーボードリスナーを解除 (変更なし)
-        console.log("Removing keyboard listeners"); // デバッグ用ログ
+        // 【修正点 2】キーボードリスナーを確実に解除
+        console.log("Removing keyboard listeners");
         document.removeEventListener('keydown', handleKeyDown);
         document.removeEventListener('keyup', handleKeyUp);
         resetKeyFlags();
 
-        // 【修正点 2】すべてのカメラ操作フラグを確実に true に戻す
-        console.log("Enabling default camera controls"); // デバッグ用ログ
+        // 【修正点 3】カメラコントローラーの状態をデフォルトに戻すことを試みる
+        console.log("Resetting camera controller states");
+        // フラグを確実に true に
         cameraController.enableRotate = true;
         cameraController.enableTranslate = true;
         cameraController.enableZoom = true;
         cameraController.enableTilt = true;
-        cameraController.enableLook = true; // Look 操作も必ず有効にする
-
-        // マウス操作を Cesium のデフォルト定数を使って完全に戻す (変更なし、これが正しい方法)
-        console.log("Resetting mouse event types to defaults"); // デバッグ用ログ
+        cameraController.enableLook = true;
+        
+        // イベントタイプをデフォルトに (変更なし、これが正しい)
         cameraController.rotateEventTypes = Cesium.ScreenSpaceCameraController.DEFAULT_ROTATE_EVENT_TYPES;
         cameraController.translateEventTypes = Cesium.ScreenSpaceCameraController.DEFAULT_TRANSLATE_EVENT_TYPES;
         cameraController.zoomEventTypes = Cesium.ScreenSpaceCameraController.DEFAULT_ZOOM_EVENT_TYPES;
         cameraController.tiltEventTypes = Cesium.ScreenSpaceCameraController.DEFAULT_TILT_EVENT_TYPES;
         cameraController.lookEventTypes = Cesium.ScreenSpaceCameraController.DEFAULT_LOOK_EVENT_TYPES;
 
+        // 一人称視点時に変更した可能性のある他の設定もリセット
+        cameraController.inertiaSpin = 0.9; // デフォルトの慣性
+        cameraController.inertiaTranslate = 0.9;
+        cameraController.inertiaZoom = 0.8;
+        // ... 他にも影響を与えている可能性のある設定があればリセット ...
+
         // カメラの軸制限とピッチ制限を解除 (変更なし)
-        console.log("Resetting camera constraints"); // デバッグ用ログ
+        console.log("Resetting camera constraints");
         viewer.camera.constrainedAxis = undefined;
         cameraController.minimumPitch = Cesium.Math.toRadians(-90.0);
         cameraController.maximumPitch = Cesium.Math.toRadians(90.0);
 
         // 視野角をデフォルトに戻す (変更なし)
-        console.log("Resetting FOV"); // デバッグ用ログ
+        console.log("Resetting FOV");
         viewer.camera.frustum.fov = Cesium.Math.toRadians(60.0);
         
-        console.log("Third Person View setup complete"); // デバッグ用ログ
+        console.log("Third Person View setup hopefully complete");
     }
 
     // 12. 一人称視点に切り替える関数
