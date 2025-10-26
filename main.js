@@ -26,7 +26,7 @@ window.onload = function() {
         destination: Cesium.Cartesian3.fromDegrees(130.360732, 33.565884, 20000),
         orientation: {
             heading: Cesium.Math.toRadians(0.0), // 真北を向く
-            pitch: Cesium.Math.toRadians(-35.0), // 少し下向きに見る角度を調整
+            pitch: Cesium.Math.toRadians(-5.0), // 少し下向きに見る角度を調整
             roll: 0.0
         }
     });
