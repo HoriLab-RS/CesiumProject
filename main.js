@@ -138,6 +138,19 @@ window.onload = function() {
 
         // 視野角をデフォルト(60度)に戻す
         viewer.camera.frustum.fov = Cesium.Math.toRadians(60.0);
+
+        //マウス操作イベントタイプを【手動で】デフォルトに再割り当て
+        console.log("Manually resetting mouse event types to defaults");
+        // Rotate (世界回転): 左ドラッグ、中ドラッグ
+        cameraController.rotateEventTypes = [Cesium.CameraEventType.LEFT_DRAG, Cesium.CameraEventType.MIDDLE_DRAG];
+        // Translate (パン): 左ドラッグ (Shiftキー併用)、中ドラッグ (Shiftキー併用)
+        cameraController.translateEventTypes = [Cesium.CameraEventType.LEFT_DRAG, Cesium.CameraEventType.MIDDLE_DRAG];
+        // Zoom (ズーム): 右ドラッグ、ホイールスクロール、二本指ピンチ
+        cameraController.zoomEventTypes = [Cesium.CameraEventType.RIGHT_DRAG, Cesium.CameraEventType.WHEEL, Cesium.CameraEventType.PINCH];
+        // Tilt (チルト): 中ドラッグ、二本指ドラッグ
+        cameraController.tiltEventTypes = [Cesium.CameraEventType.MIDDLE_DRAG, {eventType: Cesium.CameraEventType.PINCH, modifier: Cesium.KeyboardEventModifier.CTRL}];
+        // Look (視点回転): 右ドラッグ
+        cameraController.lookEventTypes = [Cesium.CameraEventType.RIGHT_DRAG];
     }
 
     // 12. 一人称視点に切り替える関数
