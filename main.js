@@ -54,7 +54,7 @@
         name: "九州大学総合研究博物館",
         position: Cesium.Cartesian3.fromDegrees(130.425728, 33.622583, 50),
         billboard: {
-            image: Cesium.buildModuleUrl("Widgets/Images/Cesium_Logo_overlay.png"),
+            image: "https://cesium.com/downloads/cesiumjs/releases/1.118/Build/Widgets/Images/Cesium_Logo_overlay.png",
             width: 32,
             height: 32
         },
