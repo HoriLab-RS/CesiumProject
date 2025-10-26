@@ -40,23 +40,46 @@ window.onload = function() {
     
     // PinBuilderを使って標準的な赤いピン画像を生成 (Data URI形式)
     const pinBuilder = new Cesium.PinBuilder();
-    const redPin = pinBuilder.fromColor(Cesium.Color.RED, 48).toDataURL(); // サイズ48pxの赤いピン
+    
+    // 【修正点1-1】丸いピンの画像を生成 (赤色)
+    const redCirclePin = pinBuilder.fromColor(Cesium.Color.RED, 48, Cesium.PinBuilder.PinStyle.DOT).toDataURL(); // PinStyle.DOT で丸に
+    
+    // 【修正点1-2】クリック時に表示する二重丸のピン画像を生成 (青色で少し大きく)
+    const selectedBlueCirclePin = pinBuilder.fromColor(Cesium.Color.BLUE, 56, Cesium.PinBuilder.PinStyle.DOT).toDataURL(); // 選択時用の青いピン
 
     viewer.entities.add({
+        id: "kyudai-museum-pin", // 【追加点】ピンに一意のIDを設定
         name: "九州大学総合研究博物館",
         position: Cesium.Cartesian3.fromDegrees(130.425728, 33.622583, 50),
         
         billboard: { 
-            image: redPin, // 生成したピン画像を使用
-            verticalOrigin: Cesium.VerticalOrigin.BOTTOM, // ピンの底を地面に合わせる
+            image: redCirclePin, // 【修正点1-3】丸いピン画像を使用
+            verticalOrigin: Cesium.VerticalOrigin.BOTTOM, 
             scaleByDistance: new Cesium.NearFarScalar(100.0, 1.0, 150.0, 0.0)
-            // カメラ距離100mでスケール1.0 (通常サイズ)
-            // カメラ距離150mでスケール0.0 (完全に消える)
         },
         
         description: `<h1>九州大学総合研究博物館</h1><p>ここに詳細を載せられます</p>`,
-        
     });
+
+    // 【追加点2】選択されたEntityが変更されたときのイベントリスナー
+    viewer.selectedEntityChanged.addEventListener(function(selectedEntity) {
+        // すべてのエンティティのピンをデフォルト（赤丸）に戻す
+        viewer.entities.values.forEach(function(entity) {
+            if (entity.id === "kyudai-museum-pin" && entity.billboard) {
+                entity.billboard.image = redCirclePin;
+                entity.billboard.scale = 1.0; // 選択解除でスケールを元に戻す
+            }
+        });
+
+        // 選択されたエンティティが「九州大学総合研究博物館」のピンであれば、二重丸の画像に切り替える
+        if (selectedEntity && selectedEntity.id === "kyudai-museum-pin") {
+            if (selectedEntity.billboard) {
+                selectedEntity.billboard.image = selectedBlueCirclePin; // 青い二重丸に切り替え
+                selectedEntity.billboard.scale = 1.2; // 少し大きくする
+            }
+        }
+    });
+
 
 
     // 7. ボタンイベントリスナー
@@ -66,7 +89,7 @@ window.onload = function() {
         button.addEventListener('click', function() {
             var kyudaiLon = 130.425757; 
             var kyudaiLat = 33.622580;
-            var height = 500; // 建物が見える 500m に設定
+            var height = 100;
 
             zoomToLocation(kyudaiLon, kyudaiLat, height);
         });
