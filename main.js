@@ -55,7 +55,7 @@ window.onload = function() {
         button.addEventListener('click', function() {
             var kyudaiLon = 130.425757; 
             var kyudaiLat = 33.622580;
-            var height = 100; // 建物が見える 100m に設定
+            var height = 500; // 建物が見える 500m に設定
 
             zoomToLocation(kyudaiLon, kyudaiLat, height);
         });
