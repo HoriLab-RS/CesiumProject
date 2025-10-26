@@ -2,11 +2,13 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>cesium</title>
+    <title>CesiumGS 3D Project</title>
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
 
-    <link rel="stylesheet" href="https://cesium.com/downloads/cesiumjs/releases/1.118/Build/Cesium/Widgets/widgets.css">
+    <!-- Cesium Widgets CSS (CDN) - 安定版 1.100 を使用 -->
+    <link rel="stylesheet" href="https://cesium.com/downloads/cesiumjs/releases/1.100/Build/Cesium/Widgets/widgets.css">
     
+    <!-- ローカルのスタイルシート -->
     <link rel="stylesheet" href="stylesheet.css">
 </head>
 <body>
@@ -18,6 +20,7 @@
         <p>このセクションは地球儀の上にあります!スクロールで地図のセクションへ移動します。</p>
     </section>
 
+    <!-- ボタンとCesiumコンテナ -->
     <button id="zoomToKyudai">九州大学博物館へズーム</button>
 
     <div id="cesium"></div>
@@ -26,8 +29,10 @@
         <p>© 2025 My Cesium Site</p>
     </footer>
 
-
-    <script src="https://cesium.com/downloads/cesiumjs/releases/1.118/Build/Cesium/Cesium.js"></script>
+    <!-- CesiumJS ライブラリの読み込み (CDN) - 安定版 1.100 を使用 -->
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.100/Build/Cesium/Cesium.js"></script>
+    
+    <!-- main.js の内容を外部ファイルとして参照します -->
     <script src="main.js"></script>
 
 </body>

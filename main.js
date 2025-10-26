@@ -1,6 +1,6 @@
-// main.js の内容をすべて以下のイベントリスナーで囲みます
-window.addEventListener('DOMContentLoaded', (event) => {
-    
+// 最終手段: window.onload で、すべてのリソースのロード完了を待ってから実行します
+window.onload = function() {
+
     "use strict";
 
     // 1. Ion トークンの設定
@@ -9,17 +9,17 @@ window.addEventListener('DOMContentLoaded', (event) => {
     // 2. ビューアの初期化とベースマップの有効化
     var viewer = new Cesium.Viewer("cesium", {
         baseLayerPicker: false,
-        baseLayer: true 
+        baseLayer: true // 衛星画像を背景に描画するために有効化
     });
     
-    // 3. Google Photorealistic 3D Tiles の追加ができるはず
+    // 3. Google Photorealistic 3D Tiles の追加
     viewer.scene.primitives.add(
         new Cesium.Cesium3DTileset({
             url: Cesium.IonResource.fromAssetId(2275207)
         })
     );
     
-    // 4. 初期視点の設定
+    // 4. 初期視点の設定 (500km 上空から日本を見る)
     viewer.camera.setView({
         destination: Cesium.Cartesian3.fromDegrees(138, 29, 500000), 
         orientation: {
@@ -51,15 +51,14 @@ window.addEventListener('DOMContentLoaded', (event) => {
     // 7. ボタンイベントリスナー
     var button = document.getElementById("zoomToKyudai");
 
-    // HTML要素が確実に読み込まれた後なので、ここでボタン処理を追加
     if (button) {
         button.addEventListener('click', function() {
             var kyudaiLon = 130.425757; 
             var kyudaiLat = 33.622580;
-            var height = 100;
+            var height = 100; // 建物が見える 100m に設定
 
             zoomToLocation(kyudaiLon, kyudaiLat, height);
         });
     }
-    
+}; // window.onload の終了
 });
