@@ -4,7 +4,7 @@ window.onload = function() {
     "use strict";
 
     // 1. Ion トークンの設定
-    Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJiYTEzNmFmYS1hNzA5LTQ2YjQtYTc0OC1iZTg3ODNhOTVlMTIiLCJpZCI6MzQ2ODE0LCJpYXQiOjE3NjE0Njg5Mjh9._9Bw9jDFFjHSKkrklCs3s_zMuPg7q3flgzezAHf7mio';
+    Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzIानिIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJiYTEzNmFmYS1hNzA5LTQ2YjQtYTc0OC1iZTg3ODNhOTVlMTIiLCJpZCI6MzQ2ODE0LCJpYXQiOjE3NjE0Njg5Mjh9._9Bw9jDFFjHSKkrklCs3s_zMuPg7q3flgzezAHf7mio';
 
     // 2. ビューアの初期化とベースマップの有効化
     var viewer = new Cesium.Viewer("cesium", {
@@ -26,7 +26,7 @@ window.onload = function() {
         destination: Cesium.Cartesian3.fromDegrees(130.360732, 33.565884, 20000),
         orientation: {
             heading: Cesium.Math.toRadians(0.0), // 真北を向く
-            pitch: Cesium.Math.toRadians(-85.0), // 少し下向きに見る角度を調整
+            pitch: Cesium.Math.toRadians(-35.0), // 少し下向きに見る角度を調整
             roll: 0.0
         }
     });
@@ -108,58 +108,59 @@ window.onload = function() {
         moveRight: false,
     };
 
-        // 11. 三人称視点に戻す関数
+    // 11. 三人称視点に戻す関数
     function switchToThirdPersonView() {
         isFirstPersonView = false;
-        if (toggleViewButton) toggleViewButton.textContent = "視点切替 (三人称)"; 
+        if (toggleViewButton) toggleViewButton.textContent = "視点切替 (三人称)";
 
         // デフォルトカメラ操作を有効化
         cameraController.enableRotate = true;
         cameraController.enableTranslate = true;
         cameraController.enableZoom = true;
-        cameraController.enableTilt = true; 
+        cameraController.enableTilt = true;
         cameraController.enableLook = true;
 
         // マウス操作をデフォルトに戻す
-        cameraController.lookEventTypes = [Cesium.CameraEventType.RIGHT_DRAG];
-        cameraController.rotateEventTypes = [Cesium.CameraEventType.LEFT_DRAG, Cesium.CameraEventType.MIDDLE_DRAG];
+        cameraController.lookEventTypes = Cesium.ScreenSpaceCameraController.DEFAULT_LOOK_EVENT_TYPES; // 右ドラッグに戻す
+        cameraController.rotateEventTypes = Cesium.ScreenSpaceCameraController.DEFAULT_ROTATE_EVENT_TYPES; // 左・中ドラッグに戻す
 
         // 一人称視点ループ停止 & キー入力解除
         if (firstPersonUpdateListener) {
             firstPersonUpdateListener();
             firstPersonUpdateListener = null;
         }
-        document.removeEventListener('keydown', handleKeyDown); 
-        document.removeEventListener('keyup', handleKeyUp);     
-        resetKeyFlags(); 
+        document.removeEventListener('keydown', handleKeyDown);
+        document.removeEventListener('keyup', handleKeyUp);
+        resetKeyFlags();
 
         // カメラの軸制限とピッチ制限を解除
-        viewer.camera.constrainedAxis = undefined; 
-        cameraController.minimumPitch = Cesium.Math.toRadians(-90.0); 
-        cameraController.maximumPitch = Cesium.Math.toRadians(90.0);  
-
-        // 【追加点 1】視野角をデフォルト (60度) に戻す
-        viewer.camera.frustum.fov = Cesium.Math.toRadians(60.0);
+        viewer.camera.constrainedAxis = undefined;
+        cameraController.minimumPitch = Cesium.Math.toRadians(-90.0);
+        cameraController.maximumPitch = Cesium.Math.toRadians(90.0);
     }
 
     // 12. 一人称視点に切り替える関数
     function switchToFirstPersonView() {
         isFirstPersonView = true;
-        if (toggleViewButton) toggleViewButton.textContent = "視点切替 (一人称)"; 
+        if (toggleViewButton) toggleViewButton.textContent = "視点切替 (一人称)";
 
         // 不要なカメラ操作を無効化
-        // ... (省略) ...
+        cameraController.enableRotate = false;
+        cameraController.enableTranslate = false;
+        cameraController.enableZoom = false;
+        cameraController.enableTilt = false; // Tilt を無効化して水平を保つ
+        cameraController.enableLook = true; // Look操作自体は有効にする (視点回転用)
 
         // Look操作 (視点回転) を中ドラッグに割り当て
-        // ... (省略) ...
+        cameraController.lookEventTypes = [Cesium.CameraEventType.MIDDLE_DRAG];
+        // Rotate操作から中ドラッグを削除
+        cameraController.rotateEventTypes = [Cesium.CameraEventType.LEFT_DRAG];
 
-        // ピッチ（上下の傾き）を制限
-        // ... (省略) ...
-        // カメラの上方向をZ軸(地軸)に固定
+        // ピッチ（上下の傾き）を制限して水平を保つ
+        cameraController.minimumPitch = Cesium.Math.toRadians(-20.0);
+        cameraController.maximumPitch = Cesium.Math.toRadians(20.0);
+        // 【修正点 2-1】カメラの上方向をZ軸(地軸)に固定してロールを防ぐ
         viewer.camera.constrainedAxis = Cesium.Cartesian3.UNIT_Z;
-
-        // 【追加点 2】視野角を広げる (例: 90度)
-        viewer.camera.frustum.fov = Cesium.Math.toRadians(90.0);
 
         // --- 開始座標を固定 ---
         const startLongitude = 130.425408;
@@ -168,20 +169,20 @@ window.onload = function() {
 
         viewer.camera.flyTo({
             destination: Cesium.Cartesian3.fromDegrees(startLongitude, startLatitude, targetHeight),
-            orientation: { 
-                heading: Cesium.Math.toRadians(0.0), 
-                pitch: Cesium.Math.toRadians(0.0), 
-                roll: 0.0 
-            }, 
+            orientation: {
+                heading: Cesium.Math.toRadians(0.0), // 真北を向く
+                pitch: Cesium.Math.toRadians(0.0), // 水平視線
+                roll: 0.0 // ロールも0に初期化
+            },
             duration: 0.5
         });
 
         // キーボードリスナーを設定
         document.addEventListener('keydown', handleKeyDown);
         document.addEventListener('keyup', handleKeyUp);
-        resetKeyFlags(); 
+        resetKeyFlags();
 
-        startFirstPersonUpdateLoop(); 
+        startFirstPersonUpdateLoop();
     }
 
     // キー入力イベントハンドラ (変更なし)
@@ -213,11 +214,11 @@ window.onload = function() {
     // 13. 一人称視点用の更新ループ関数 (高さ維持 + 移動処理 + 水平固定)
     let firstPersonUpdateListener = null;
     const moveSpeed = 5.0;
-    let lastTime = null; // 前回の時刻を保持
+    let lastTime = null; // 【修正点 1-1】前回の時間記録用
 
     function startFirstPersonUpdateLoop() {
         if (firstPersonUpdateListener) firstPersonUpdateListener();
-        lastTime = null; // 【修正点 1-1】ループ開始時に lastTime を null にリセット
+        lastTime = null; // 【修正点 1-2】ループ開始時に lastTime を null にリセット
 
         firstPersonUpdateListener = scene.preRender.addEventListener(function(scene, time) {
             if (!isFirstPersonView) return;
@@ -226,7 +227,7 @@ window.onload = function() {
             const now = Cesium.JulianDate.now(); // 現在時刻を取得
             let elapsed = 0;
 
-            // 【修正点 1-2】初回フレームまたは lastTime が不正な場合の処理
+            // 【修正点 1-3】初回フレームまたは lastTime が不正な場合の処理
             if (lastTime) {
                  elapsed = Cesium.JulianDate.secondsDifference(now, lastTime);
                  // 極端な経過時間は無視
@@ -245,8 +246,8 @@ window.onload = function() {
             if (keyFlags.moveRight) camera.moveRight(moveRate);
 
             // 【修正点 2-2】ロール（横傾き）を常に0にリセットして水平を維持
-            // （constrainedAxis だけでは不十分な場合があるため、ここで強制的に 0 にする）
             if (camera.roll !== 0.0) {
+                 // setViewを使うとカクつく場合があるので、orientation直接設定を試す
                  camera.setView({
                      orientation: {
                          heading: camera.heading,
@@ -254,6 +255,8 @@ window.onload = function() {
                          roll: 0.0
                      }
                  });
+                 // 代替案：直接orientationを操作 (よりスムーズな場合あり)
+                 // camera.orientation.roll = 0.0;
             }
 
 
@@ -302,4 +305,3 @@ window.onload = function() {
     }
 
 }; // window.onload の終了
-
