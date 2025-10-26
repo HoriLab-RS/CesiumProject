@@ -7,11 +7,9 @@
     // 2. ビューアの初期化とベースマップの無効化
     var viewer = new Cesium.Viewer("cesium", {
         baseLayerPicker: false,
-        baseLayer: false // デフォルト画像を読み込まない
+        baseLayer: true // デフォルト画像を読み込まない
     });
     
-    // 3. 既存の画像レイヤーをすべて消去（重要）
-    viewer.scene.imageryLayers.removeAll();
 
     // 4. Google Photorealistic 3D Tiles の追加
     viewer.scene.primitives.add(
@@ -44,7 +42,7 @@
     button.addEventListener('click', function() {
         var kyudaiLon = 130.425757; 
         var kyudaiLat = 33.622580;
-        var height = 150; // 建物が見える 150m に設定
+        var height = 100; // 建物が見える 100m に設定
 
         zoomToLocation(kyudaiLon, kyudaiLat, height);
     });
