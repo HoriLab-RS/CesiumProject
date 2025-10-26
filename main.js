@@ -6,12 +6,14 @@ Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOi
 
 var viewer = new Cesium.Viewer("cesium");
 
+
 // アセットID 2275207 を指定して、googleの3Dデータレイヤーを追加します。
     viewer.scene.primitives.add(
         new Cesium.Cesium3DTileset({
             url: Cesium.IonResource.fromAssetId(2275207)
         })
     );
+
 
 //初期の視点（カメラ）の位置 日本の上空にカメラが来るように設定。
 viewer.camera.setView({
@@ -48,7 +50,7 @@ roll: 0
         // 九州大学博物館の座標
         var kyudaiLon = 130.425757; 
         var kyudaiLat = 33.622580;
-        var height = 800;
+        var height = 400;
 
         zoomToLocation(kyudaiLon, kyudaiLat, height);
     });
