@@ -20,7 +20,7 @@ window.onload = function() {
         })
     );
 
-    // 4. 初期視点の設定 (指定された座標、20km 上空から福岡市を見る)
+    // 4. 初期視点の設定 (指定された座標、20km 上空から福岡市を見る) - 再修正
     viewer.camera.setView({
         // 【修正点 3】初期位置を指定された座標に変更
         destination: Cesium.Cartesian3.fromDegrees(130.360732, 33.565884, 20000),
@@ -35,7 +35,7 @@ window.onload = function() {
     function zoomToLocation(lon, lat, height) {
         viewer.camera.flyTo({
             destination: Cesium.Cartesian3.fromDegrees(lon, lat, height),
-            duration: 3
+            duration: 3 // アニメーション時間（余韻は特に設定しない）
         });
     }
 
@@ -76,6 +76,11 @@ window.onload = function() {
     var button = document.getElementById("zoomToKyudai");
     if (button) {
         button.addEventListener('click', function() {
+            // 【修正点 4】ズームボタンクリック時に三人称視点に戻す
+            if (isFirstPersonView) {
+                switchToThirdPersonView();
+            }
+            // ズーム実行
             var kyudaiLon = 130.425757;
             var kyudaiLat = 33.622580;
             var height = 100;
@@ -143,7 +148,7 @@ window.onload = function() {
         cameraController.enableRotate = false;
         cameraController.enableTranslate = false;
         cameraController.enableZoom = false;
-        cameraController.enableTilt = false;
+        cameraController.enableTilt = false; // Tilt を無効化して水平を保つ
         cameraController.enableLook = true; // Look操作自体は有効にする (視点回転用)
 
         // Look操作 (視点回転) を中ドラッグに割り当て
@@ -154,17 +159,16 @@ window.onload = function() {
         // ピッチ（上下の傾き）を制限して水平を保つ
         cameraController.minimumPitch = Cesium.Math.toRadians(-20.0);
         cameraController.maximumPitch = Cesium.Math.toRadians(20.0);
-        // カメラの上方向をZ軸(地軸)に固定してロールを防ぐ
+        // 【修正点 2-1】カメラの上方向をZ軸(地軸)に固定してロールを防ぐ
         viewer.camera.constrainedAxis = Cesium.Cartesian3.UNIT_Z;
 
         // --- 開始座標を固定 ---
         const startLongitude = 130.425408;
         const startLatitude = 33.622125;
-        // 【修正点 1】一人称視点の初期高さを 55m に変更
-        const targetHeight = 55;
+        const targetHeight = 55; // 一人称視点の高さ 55m
 
         viewer.camera.flyTo({
-            destination: Cesium.Cartesian3.fromDegrees(startLongitude, startLatitude, targetHeight), // 一旦、海抜 55m に移動
+            destination: Cesium.Cartesian3.fromDegrees(startLongitude, startLatitude, targetHeight),
             orientation: {
                 heading: Cesium.Math.toRadians(0.0), // 真北を向く
                 pitch: Cesium.Math.toRadians(0.0), // 水平視線
@@ -183,12 +187,14 @@ window.onload = function() {
 
     // キー入力イベントハンドラ (変更なし)
     function handleKeyDown(event) {
+        // テキスト入力中などは移動しないようにする (オプション)
         if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') return;
         const keyCode = event.keyCode;
         if (keyCode === 87 || keyCode === 38) keyFlags.moveForward = true;
         if (keyCode === 83 || keyCode === 40) keyFlags.moveBackward = true;
         if (keyCode === 65 || keyCode === 37) keyFlags.moveLeft = true;
         if (keyCode === 68 || keyCode === 39) keyFlags.moveRight = true;
+        // 矢印キーでの画面スクロールを防止
         if (keyCode >= 37 && keyCode <= 40) event.preventDefault();
     }
     function handleKeyUp(event) {
@@ -205,59 +211,81 @@ window.onload = function() {
         keyFlags.moveRight = false;
     }
 
-    // 13. 一人称視点用の更新ループ関数 (高さ維持 + 移動処理)
+    // 13. 一人称視点用の更新ループ関数 (高さ維持 + 移動処理 + 水平固定)
     let firstPersonUpdateListener = null;
     const moveSpeed = 5.0;
-    let lastTime = null;
+    let lastTime = null; // 前回の時刻を保持
 
     function startFirstPersonUpdateLoop() {
         if (firstPersonUpdateListener) firstPersonUpdateListener();
-        lastTime = Cesium.JulianDate.now(); // 時間を初期化
+        lastTime = null; // 【修正点 1-1】ループ開始時に lastTime を null にリセット
 
         firstPersonUpdateListener = scene.preRender.addEventListener(function(scene, time) {
             if (!isFirstPersonView) return;
 
             const camera = viewer.camera;
-            const now = Cesium.JulianDate.now();
+            const now = Cesium.JulianDate.now(); // 現在時刻を取得
             let elapsed = 0;
-            if (lastTime) { // lastTime が null でないことを確認
-                 elapsed = Cesium.JulianDate.secondsDifference(now, lastTime);
-            }
-            lastTime = Cesium.JulianDate.clone(now, lastTime);
 
-            if (elapsed <= 0 || elapsed > 0.1) return; // elapsed が有効な場合のみ続行
+            // 【修正点 1-2】初回フレームまたは lastTime が不正な場合の処理
+            if (lastTime) {
+                 elapsed = Cesium.JulianDate.secondsDifference(now, lastTime);
+                 // 極端な経過時間は無視
+                 if (elapsed <= 0 || elapsed > 0.1) {
+                     elapsed = 0; // 移動量を0にする
+                 }
+            }
+            lastTime = Cesium.JulianDate.clone(now, lastTime); // 次のフレームのために時間を更新
 
             // --- カメラ移動処理 ---
-            const moveRate = moveSpeed * elapsed;
+            const moveRate = moveSpeed * elapsed; // elapsed が 0 なら moveRate も 0
 
             if (keyFlags.moveForward) camera.moveForward(moveRate);
             if (keyFlags.moveBackward) camera.moveBackward(moveRate);
             if (keyFlags.moveLeft) camera.moveLeft(moveRate);
             if (keyFlags.moveRight) camera.moveRight(moveRate);
 
+            // 【修正点 2-2】ロール（横傾き）を常に0にリセットして水平を維持
+            // （constrainedAxis だけでは不十分な場合があるため、ここで強制的に 0 にする）
+            if (camera.roll !== 0.0) {
+                 camera.setView({
+                     orientation: {
+                         heading: camera.heading,
+                         pitch: camera.pitch,
+                         roll: 0.0
+                     }
+                 });
+            }
+
+
             // --- 高さ維持処理 ---
             const positionCartographic = Cesium.Cartographic.fromCartesian(camera.position);
-            // 【修正点 2】ループ内で維持する高さを 55m に変更
-            const targetHeight = 55;
+            const targetHeight = 55; // 一人称視点の高さ 55m
 
             let terrainHeight = 0;
             const cartographic = Cesium.Cartographic.fromCartesian(camera.position);
-            const promise = Cesium.sampleTerrain(viewer.terrainProvider, 11, [cartographic]);
-            Promise.resolve(promise).then(function(updatedCartographics) {
-                 if (updatedCartographics && updatedCartographics.length > 0) {
-                     if (updatedCartographics[0] && updatedCartographics[0].height !== undefined) {
-                          terrainHeight = updatedCartographics[0].height;
-                     }
-                 }
-                 const targetEllipsoidHeight = terrainHeight + targetHeight;
-                 if (Math.abs(positionCartographic.height - targetEllipsoidHeight) > 0.1) {
-                      camera.position = Cesium.Cartesian3.fromRadians(
-                          positionCartographic.longitude,
-                          positionCartographic.latitude,
-                          targetEllipsoidHeight
-                      );
-                 }
-            });
+            // 地形プロバイダーが準備できているか確認 (オプションだが安定性向上)
+            if (viewer.terrainProvider.ready) {
+                const promise = Cesium.sampleTerrain(viewer.terrainProvider, 11, [cartographic]);
+                Promise.resolve(promise).then(function(updatedCartographics) {
+                    if (updatedCartographics && updatedCartographics.length > 0) {
+                        if (updatedCartographics[0] && updatedCartographics[0].height !== undefined) {
+                            terrainHeight = updatedCartographics[0].height;
+                        }
+                    }
+                    const targetEllipsoidHeight = terrainHeight + targetHeight;
+                    // カメラ位置の更新は、現在位置と目標位置が異なる場合のみ行う
+                    if (Math.abs(positionCartographic.height - targetEllipsoidHeight) > 0.1) {
+                        camera.position = Cesium.Cartesian3.fromRadians(
+                            positionCartographic.longitude,
+                            positionCartographic.latitude,
+                            targetEllipsoidHeight
+                        );
+                    }
+                }).catch(function(error){
+                    console.error("sampleTerrain failed:", error); // 地形取得エラー時のログ
+                });
+            }
 
         });
     }
@@ -275,3 +303,4 @@ window.onload = function() {
     }
 
 }; // window.onload の終了
+
