@@ -26,7 +26,7 @@ window.onload = function() {
         destination: Cesium.Cartesian3.fromDegrees(130.360732, 33.565884, 20000),
         orientation: {
             heading: Cesium.Math.toRadians(0.0), // 真北を向く
-            pitch: Cesium.Math.toRadians(-5.0), // 少し下向きに見る角度を調整
+            pitch: Cesium.Math.toRadians(-85.0), // 少し下向きに見る角度を調整
             roll: 0.0
         }
     });
@@ -108,16 +108,16 @@ window.onload = function() {
         moveRight: false,
     };
 
-    // 11. 三人称視点に戻す関数
+        // 11. 三人称視点に戻す関数
     function switchToThirdPersonView() {
         isFirstPersonView = false;
-        if (toggleViewButton) toggleViewButton.textContent = "視点切替 (三人称)";
+        if (toggleViewButton) toggleViewButton.textContent = "視点切替 (三人称)"; 
 
         // デフォルトカメラ操作を有効化
         cameraController.enableRotate = true;
         cameraController.enableTranslate = true;
         cameraController.enableZoom = true;
-        cameraController.enableTilt = true;
+        cameraController.enableTilt = true; 
         cameraController.enableLook = true;
 
         // マウス操作をデフォルトに戻す
@@ -129,38 +129,37 @@ window.onload = function() {
             firstPersonUpdateListener();
             firstPersonUpdateListener = null;
         }
-        document.removeEventListener('keydown', handleKeyDown);
-        document.removeEventListener('keyup', handleKeyUp);
-        resetKeyFlags();
+        document.removeEventListener('keydown', handleKeyDown); 
+        document.removeEventListener('keyup', handleKeyUp);     
+        resetKeyFlags(); 
 
         // カメラの軸制限とピッチ制限を解除
-        viewer.camera.constrainedAxis = undefined;
-        cameraController.minimumPitch = Cesium.Math.toRadians(-90.0);
-        cameraController.maximumPitch = Cesium.Math.toRadians(90.0);
+        viewer.camera.constrainedAxis = undefined; 
+        cameraController.minimumPitch = Cesium.Math.toRadians(-90.0); 
+        cameraController.maximumPitch = Cesium.Math.toRadians(90.0);  
+
+        // 【追加点 1】視野角をデフォルト (60度) に戻す
+        viewer.camera.frustum.fov = Cesium.Math.toRadians(60.0);
     }
 
     // 12. 一人称視点に切り替える関数
     function switchToFirstPersonView() {
         isFirstPersonView = true;
-        if (toggleViewButton) toggleViewButton.textContent = "視点切替 (一人称)";
+        if (toggleViewButton) toggleViewButton.textContent = "視点切替 (一人称)"; 
 
         // 不要なカメラ操作を無効化
-        cameraController.enableRotate = false;
-        cameraController.enableTranslate = false;
-        cameraController.enableZoom = false;
-        cameraController.enableTilt = false; // Tilt を無効化して水平を保つ
-        cameraController.enableLook = true; // Look操作自体は有効にする (視点回転用)
+        // ... (省略) ...
 
         // Look操作 (視点回転) を中ドラッグに割り当て
-        cameraController.lookEventTypes = [Cesium.CameraEventType.MIDDLE_DRAG];
-        // Rotate操作から中ドラッグを削除
-        cameraController.rotateEventTypes = [Cesium.CameraEventType.LEFT_DRAG];
+        // ... (省略) ...
 
-        // ピッチ（上下の傾き）を制限して水平を保つ
-        cameraController.minimumPitch = Cesium.Math.toRadians(-20.0);
-        cameraController.maximumPitch = Cesium.Math.toRadians(20.0);
-        // 【修正点 2-1】カメラの上方向をZ軸(地軸)に固定してロールを防ぐ
+        // ピッチ（上下の傾き）を制限
+        // ... (省略) ...
+        // カメラの上方向をZ軸(地軸)に固定
         viewer.camera.constrainedAxis = Cesium.Cartesian3.UNIT_Z;
+
+        // 【追加点 2】視野角を広げる (例: 90度)
+        viewer.camera.frustum.fov = Cesium.Math.toRadians(90.0);
 
         // --- 開始座標を固定 ---
         const startLongitude = 130.425408;
@@ -169,20 +168,20 @@ window.onload = function() {
 
         viewer.camera.flyTo({
             destination: Cesium.Cartesian3.fromDegrees(startLongitude, startLatitude, targetHeight),
-            orientation: {
-                heading: Cesium.Math.toRadians(0.0), // 真北を向く
-                pitch: Cesium.Math.toRadians(0.0), // 水平視線
-                roll: 0.0 // ロールも0に初期化
-            },
+            orientation: { 
+                heading: Cesium.Math.toRadians(0.0), 
+                pitch: Cesium.Math.toRadians(0.0), 
+                roll: 0.0 
+            }, 
             duration: 0.5
         });
 
         // キーボードリスナーを設定
         document.addEventListener('keydown', handleKeyDown);
         document.addEventListener('keyup', handleKeyUp);
-        resetKeyFlags();
+        resetKeyFlags(); 
 
-        startFirstPersonUpdateLoop();
+        startFirstPersonUpdateLoop(); 
     }
 
     // キー入力イベントハンドラ (変更なし)
