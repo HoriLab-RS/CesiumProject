@@ -46,16 +46,16 @@ window.onload = function() {
         name: "九州大学総合研究博物館",
         position: Cesium.Cartesian3.fromDegrees(130.425728, 33.622583, 50),
         
-        // 【修正点】'point' の代わりに 'billboard' を使用
         billboard: { 
             image: redPin, // 生成したピン画像を使用
             verticalOrigin: Cesium.VerticalOrigin.BOTTOM // ピンの底を地面に合わせる
+            scaleByDistance: new Cesium.NearFarScalar(100.0, 1.0, 150.0, 0.0)
+            // カメラ距離100mでスケール1.0 (通常サイズ)
+            // カメラ距離150mでスケール0.0 (完全に消える)
         },
         
-        description: `<h1>九州大学総合研究博物館</h1><p>ボタンでズームインするとピンが見えます。</p>`,
+        description: `<h1>九州大学総合研究博物館</h1><p>ここに詳細を載せられます</p>`,
         
-        // distanceDisplayCondition は billboard でも同じように機能するはず
-        distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0.0, 100.0) 
     });
 
 
