@@ -111,9 +111,9 @@ window.onload = function() {
         moveRight: false,
     };
 
-// 11. 三人称視点に戻す関数 (最終リセット試行)
+// 11. 三人称視点に戻す関数 (手動での完全な再設定版)
     function switchToThirdPersonView() {
-        console.log("Switching back to Third Person View (Final Reset Attempt)");
+        console.log("Switching back to Third Person View (Manual Full Reset)");
         isFirstPersonView = false;
         if (toggleViewButton) toggleViewButton.textContent = "視点切替 (三人称)";
 
@@ -137,37 +137,36 @@ window.onload = function() {
         cameraController.minimumPitch = Cesium.Math.toRadians(-90.0);
         cameraController.maximumPitch = Cesium.Math.toRadians(90.0);
 
-        // 4. マウス操作イベントタイプをデフォルトに戻す (これが正しい)
-        console.log("Resetting mouse event types to defaults");
-        cameraController.rotateEventTypes = Cesium.ScreenSpaceCameraController.DEFAULT_ROTATE_EVENT_TYPES;
-        cameraController.translateEventTypes = Cesium.ScreenSpaceCameraController.DEFAULT_TRANSLATE_EVENT_TYPES;
-        cameraController.zoomEventTypes = Cesium.ScreenSpaceCameraController.DEFAULT_ZOOM_EVENT_TYPES;
-        cameraController.tiltEventTypes = Cesium.ScreenSpaceCameraController.DEFAULT_TILT_EVENT_TYPES;
-        cameraController.lookEventTypes = Cesium.ScreenSpaceCameraController.DEFAULT_LOOK_EVENT_TYPES;
+        // 4. すべてのカメラ操作フラグを確実に true に戻す
+        console.log("Enabling default camera controls");
+        cameraController.enableRotate = true;
+        cameraController.enableTranslate = true;
+        cameraController.enableZoom = true;
+        cameraController.enableTilt = true;
+        cameraController.enableLook = true; // Look 操作も必ず有効にする
 
-        // 5. 【修正点 1】カメラコントローラーのイベント処理を一時的に無効化し、再有効化
-        console.log("Temporarily disabling and re-enabling controller events");
-        cameraController.enableInputs = false; // すべての入力を一時停止
-        // ---- 短い遅延を入れて再有効化 ----
-        setTimeout(() => {
-            console.log("Re-enabling controller inputs");
-            cameraController.enableInputs = true; // 入力を再開
-             // 再有効化後に、念のため enable フラグを再度 true に設定
-            cameraController.enableRotate = true;
-            cameraController.enableTranslate = true;
-            cameraController.enableZoom = true;
-            cameraController.enableTilt = true;
-            cameraController.enableLook = true;
-            console.log("Controller inputs re-enabled.");
-            scene.requestRender(); // 状態変更後に再描画を要求
-        }, 10); // 10ミリ秒の遅延（なくても良いかもしれない）
-
+        // 5. 【修正点】マウス操作イベントタイプを【手動で】デフォルトに再割り当て
+        console.log("Manually resetting mouse event types to defaults");
+        // Rotate (世界回転): 左ドラッグ、中ドラッグ
+        cameraController.rotateEventTypes = [Cesium.CameraEventType.LEFT_DRAG, Cesium.CameraEventType.MIDDLE_DRAG];
+        // Translate (パン): 左ドラッグ (Shiftキー併用)、中ドラッグ (Shiftキー併用) - Shift併用は ModifierKey で制御されるため EventType のみ指定
+        // Note: Translate は enableTranslate = true だけで通常動作するはずだが、念のため設定
+        cameraController.translateEventTypes = [Cesium.CameraEventType.LEFT_DRAG, Cesium.CameraEventType.MIDDLE_DRAG]; // Shiftキー制御は内部で行われる
+        // Zoom (ズーム): 右ドラッグ、ホイールスクロール、二本指ピンチ
+        cameraController.zoomEventTypes = [Cesium.CameraEventType.RIGHT_DRAG, Cesium.CameraEventType.WHEEL, Cesium.CameraEventType.PINCH];
+        // Tilt (チルト): 中ドラッグ、二本指ドラッグ
+        cameraController.tiltEventTypes = [Cesium.CameraEventType.MIDDLE_DRAG, {eventType: Cesium.CameraEventType.PINCH, modifier: Cesium.KeyboardEventModifier.CTRL}]; // Ctrl+PinchでもTiltするデフォルト動作
+        // Look (視点回転): 右ドラッグ (Ctrlキー併用)、単独の右ドラッグもLookに割り当てられている場合がある
+        cameraController.lookEventTypes = [Cesium.CameraEventType.RIGHT_DRAG]; // 基本は右ドラッグ
 
         // 6. 視野角をデフォルトに戻す
         console.log("Resetting FOV");
         viewer.camera.frustum.fov = Cesium.Math.toRadians(60.0);
+
+        // 7. (念のため) シーンの再描画を要求する
+        scene.requestRender(); 
         
-        console.log("Third Person View setup complete (Final Reset Attempt)");
+        console.log("Third Person View setup complete (Manual Full Reset)");
     }
 
     // 12. 一人称視点に切り替える関数
