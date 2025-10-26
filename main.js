@@ -189,7 +189,7 @@ window.onload = function() {
         // 一人称視点の開始座標と初期高さ
         const startLongitude = 130.425408;
         const startLatitude = 33.622125;
-        const startHeight = 41; // 開始時の海抜高さ (ループで地面からの高さに補正される)
+        const startHeight = 40; // 開始時の海抜高さ (ループで地面からの高さに補正される)
 
         // 指定座標へ移動
         viewer.camera.flyTo({
@@ -286,7 +286,7 @@ window.onload = function() {
 
             // 地面からの高さを維持する処理
             const positionCartographic = Cesium.Cartographic.fromCartesian(camera.position); // 現在のカメラ位置(緯度経度高度)
-            const targetHeightAboveGround = 41; // 地面からの目標高さ (41m)
+            const targetHeightAboveGround = 40; // 地面からの目標高さ (41m)
             let terrainHeight = 0; // 地面の高さ(海抜)
             const cartographic = Cesium.Cartographic.fromCartesian(camera.position); // カメラ真下の座標
 
