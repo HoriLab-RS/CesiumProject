@@ -6,11 +6,6 @@ Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOi
 
 var viewer = new Cesium.Viewer("cesium");
 
-
-(function () {
-    "use strict";
-
-
     // 【修正点 1】ベースマップを読み込まない設定を追加
     var viewer = new Cesium.Viewer("cesium", {
         baseLayerPicker: false, // ベースレイヤー選択ウィジェットを非表示
