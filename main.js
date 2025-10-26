@@ -4,7 +4,6 @@
 // Cesium ion トークンの設定
 Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJlODQ3ODQ4MS1lYzRkLTRiNjktYWM4ZC04NTI5NDdmNjA4OTYiLCJpZCI6MzQ2ODE0LCJpYXQiOjE3NTk0ODMzOTd9.sDxu7nvzcLpy0IPq1PVkmTgsXhkJmJLYiOkorN1L-2M';
 
-var viewer = new Cesium.Viewer("cesium");
 
     // 【修正点 1】ベースマップを読み込まない設定を追加
     var viewer = new Cesium.Viewer("cesium", {
@@ -33,7 +32,8 @@ heading: 0, // 水平方向の回転度（ラジアン）
 pitch: -1.4, // 垂直方向の回転度（ラジアン） 上を見上げたり下を見下ろしたり
 roll: 0
 }
-});
+}
+);
 
 
 // 【変更点】ここから追加: ズームイン処理の関数とイベントリスナー
@@ -68,4 +68,4 @@ roll: 0
     // 【変更点】ここまで追加
 
 
-})(); // 最後の行の () はそのまま
+})();
