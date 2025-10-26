@@ -151,6 +151,10 @@ window.onload = function() {
         cameraController.tiltEventTypes = [Cesium.CameraEventType.MIDDLE_DRAG, {eventType: Cesium.CameraEventType.PINCH, modifier: Cesium.KeyboardEventModifier.CTRL}];
         // Look (視点回転): 右ドラッグ
         cameraController.lookEventTypes = [Cesium.CameraEventType.RIGHT_DRAG];
+
+        document.getElementById('third-person-controls').style.display = 'block'; // 三人称を表示
+        document.getElementById('first-person-controls').style.display = 'none';  // 一人称を非表示
+
     }
 
     // 12. 一人称視点に切り替える関数
@@ -205,6 +209,10 @@ window.onload = function() {
 
         // 高さ維持と移動のためのループを開始
         startFirstPersonUpdateLoop();
+
+        document.getElementById('third-person-controls').style.display = 'none';  // 三人称を非表示
+        document.getElementById('first-person-controls').style.display = 'block'; // 一人称を表示
+
     }
 
     // 12.1 キーボード入力の処理
