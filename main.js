@@ -19,9 +19,9 @@ window.onload = function() {
         })
     );
     
-    // 4. 初期視点の設定 (80km 上空から福岡市を見る)
+    // 4. 初期視点の設定 (20km 上空から福岡市を見る)
     viewer.camera.setView({
-        destination: Cesium.Cartesian3.fromDegrees(130.3764, 33.5860, 80000), 
+        destination: Cesium.Cartesian3.fromDegrees(130.36095, 33.56578, 20000), 
         orientation: {
             heading: 0, pitch: -1.4, roll: 0
         }
