@@ -21,7 +21,7 @@ window.onload = function() {
     
     // 4. 初期視点の設定 (500km 上空から日本を見る)
     viewer.camera.setView({
-        destination: Cesium.Cartesian3.fromDegrees(130.45, 33.65, 800000), 
+        destination: Cesium.Cartesian3.fromDegrees(130.3764, 33.5860, 800000), 
         orientation: {
             heading: 0, pitch: -1.4, roll: 0
         }
