@@ -1,71 +1,64 @@
 (function () {
-"use strict";
+    "use strict";
 
-// Cesium ion トークンの設定
-Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJiYTEzNmFmYS1hNzA5LTQ2YjQtYTc0OC1iZTg3ODNhOTVlMTIiLCJpZCI6MzQ2ODE0LCJpYXQiOjE3NjE0Njg5Mjh9._9Bw9jDFFjHSKkrklCs3s_zMuPg7q3flgzezAHf7mio';
+    // 1. Ion トークンの設定
+    Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJlODQ3ODQ4MS1lYzRkLTRiNjktYWM4ZC00NTI5NDdmNjA4OTYiLCJpZCI6MzQ2ODE0LCJpYXQiOjE3NTk0ODMzOTd9.sDxu7nvzcLpy0IPq1PVkmTgsXhkJmJLYiOkorN1L-2M';
 
-
-    // 【修正点 1】ベースマップを読み込まない設定を追加
+    // 2. ビューアの初期化とベースマップの無効化
     var viewer = new Cesium.Viewer("cesium", {
-        baseLayerPicker: false, // ベースレイヤー選択ウィジェットを非表示
-        // Cesiumのデフォルト画像を読み込まない
-        baseLayer: false
-    }); 
-
-    // 【修正点 2】デフォルトで入っている画像をすべて消去（重要）
+        baseLayerPicker: false,
+        baseLayer: false // デフォルト画像を読み込まない
+    });
+    
+    // 3. 既存の画像レイヤーをすべて消去（重要）
     viewer.scene.imageryLayers.removeAll();
 
-    // 【追加点】Google Photorealistic 3D Tiles の追加
-    // アセットID 2275207 を指定して、3Dデータレイヤーを追加します。
+    // 4. Google Photorealistic 3D Tiles の追加
     viewer.scene.primitives.add(
         new Cesium.Cesium3DTileset({
             url: Cesium.IonResource.fromAssetId(2275207)
         })
     );
+    
+    // 5. 初期視点の設定（高度を 500km に下げて強制的にデータ読み込みを促す）
+    viewer.camera.setView({
+        destination: Cesium.Cartesian3.fromDegrees(138, 29, 500000), 
+        orientation: {
+            heading: 0,
+            pitch: -1.4, 
+            roll: 0
+        }
+    });
 
-
-//初期の視点（カメラ）の位置 日本の上空にカメラが来るように設定。
-viewer.camera.setView({
-destination: Cesium.Cartesian3.fromDegrees(138, 29, 500000),
-orientation: {
-heading: 0, // 水平方向の回転度（ラジアン）
-pitch: -1.4, // 垂直方向の回転度（ラジアン） 上を見上げたり下を見下ろしたり
-roll: 0
-}
-}
-);
-
-
-// 【変更点】ここから追加: ズームイン処理の関数とイベントリスナー
-
-    /**
-     * 指定した座標にアニメーションでカメラを移動させる関数
-     * @param {number} lon 経度
-     * @param {number} lat 緯度
-     * @param {number} height 高度（メートル）
-     */
+    // 6. ズームイン処理の関数定義
     function zoomToLocation(lon, lat, height) {
         viewer.camera.flyTo({
-            // 九州大学博物館の座標 (33.6190, 130.4357) と高度1000m
             destination: Cesium.Cartesian3.fromDegrees(lon, lat, height),
-            duration: 3 // アニメーションにかける時間（秒）
+            duration: 3
         });
     }
 
-    // ボタン要素を取得
+    // 7. ボタンイベントリスナー
     var button = document.getElementById("zoomToKyudai");
 
-    // ボタンがクリックされたら、特定の場所にズームインする
     button.addEventListener('click', function() {
-        // 九州大学博物館の座標
         var kyudaiLon = 130.425757; 
         var kyudaiLat = 33.622580;
-        var height = 150;
+        var height = 150; // 建物が見える 150m に設定
 
         zoomToLocation(kyudaiLon, kyudaiLat, height);
     });
 
-    // 【変更点】ここまで追加
-
-
-})();
+    // 8. Entity（マーカー）の追加
+    viewer.entities.add({
+        name: "九州大学総合研究博物館",
+        position: Cesium.Cartesian3.fromDegrees(130.425728, 33.622583, 50),
+        billboard: {
+            image: Cesium.buildModuleUrl("Widgets/Images/Cesium_Logo_overlay.png"),
+            width: 32,
+            height: 32
+        },
+        description: `<h1>九州大学総合研究博物館</h1><p>ボタンでズームインするとピンが見えます。</p>`
+    });
+    
+})(); // 最後の行
