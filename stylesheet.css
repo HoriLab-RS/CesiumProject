@@ -6,7 +6,7 @@ html, body {
     overflow-x: hidden; /* 横スクロールを禁止 */
 }
 
-/* 🌎 Cesiumコンテナに固定のサイズを設定する */
+/* Cesiumコンテナに固定のサイズを設定する */
 #cesium {
     /* 以前の position: absolute; top: 0; bottom: 0; はすべて削除！ */
     position: relative; /* 標準的な配置に戻す */

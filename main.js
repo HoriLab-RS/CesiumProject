@@ -208,7 +208,7 @@ window.onload = function() {
         viewer.camera.flyTo({
             destination: Cesium.Cartesian3.fromDegrees(startLongitude, startLatitude, targetHeight),
             orientation: { heading: Cesium.Math.toRadians(0.0), pitch: Cesium.Math.toRadians(0.0), roll: 0.0 },
-            duration: 0.5
+            duration: 2
         });
 
         // キーボードリスナーを設定
