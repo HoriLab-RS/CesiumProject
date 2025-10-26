@@ -35,19 +35,29 @@ window.onload = function() {
         });
     }
 
+
     // 6. Entity（マーカー）の追加
+    
+    // PinBuilderを使って標準的な赤いピン画像を生成 (Data URI形式)
+    const pinBuilder = new Cesium.PinBuilder();
+    const redPin = pinBuilder.fromColor(Cesium.Color.RED, 48).toDataURL(); // サイズ48pxの赤いピン
+
     viewer.entities.add({
         name: "九州大学総合研究博物館",
         position: Cesium.Cartesian3.fromDegrees(130.425728, 33.622583, 50),
-        point: { 
-            pixelSize: 10, 
-            color: Cesium.Color.RED, 
-            outlineColor: Cesium.Color.WHITE,
-            outlineWidth: 2
+        
+        // 【修正点】'point' の代わりに 'billboard' を使用
+        billboard: { 
+            image: redPin, // 生成したピン画像を使用
+            verticalOrigin: Cesium.VerticalOrigin.BOTTOM // ピンの底を地面に合わせる
         },
+        
         description: `<h1>九州大学総合研究博物館</h1><p>ボタンでズームインするとピンが見えます。</p>`,
-        distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0.0, 100.0)
+        
+        // distanceDisplayCondition は billboard でも同じように機能するはず
+        distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0.0, 100.0) 
     });
+
 
     // 7. ボタンイベントリスナー
     var button = document.getElementById("zoomToKyudai");
