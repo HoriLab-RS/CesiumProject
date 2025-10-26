@@ -42,7 +42,7 @@ roll: 0
         // 九州大学博物館の座標
         var kyudaiLon = 130.425757; 
         var kyudaiLat = 33.622580;
-        var height = 1000;
+        var height = 800;
 
         zoomToLocation(kyudaiLon, kyudaiLat, height);
     });
