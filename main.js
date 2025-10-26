@@ -17,4 +17,37 @@ roll: 0
 }
 });
 
-}()); // 最後の行の () はそのまま
+
+// 【変更点】ここから追加: ズームイン処理の関数とイベントリスナー
+
+    /**
+     * 指定した座標にアニメーションでカメラを移動させる関数
+     * @param {number} lon 経度
+     * @param {number} lat 緯度
+     * @param {number} height 高度（メートル）
+     */
+    function zoomToLocation(lon, lat, height) {
+        viewer.camera.flyTo({
+            // 九州大学博物館の座標 (33.6190, 130.4357) と高度1000m
+            destination: Cesium.Cartesian3.fromDegrees(lon, lat, height),
+            duration: 3 // アニメーションにかける時間（秒）
+        });
+    }
+
+    // ボタン要素を取得
+    var button = document.getElementById("zoomToKyudai");
+
+    // ボタンがクリックされたら、特定の場所にズームインする
+    button.addEventListener('click', function() {
+        // 九州大学博物館の座標
+        var kyudaiLon = 130.4357; 
+        var kyudaiLat = 33.6190;
+        var height = 1000;
+
+        zoomToLocation(kyudaiLon, kyudaiLat, height);
+    });
+
+    // 【変更点】ここまで追加
+
+
+})(); // 最後の行の () はそのまま
