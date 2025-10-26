@@ -128,43 +128,38 @@ window.onload = function() {
         viewer.camera.constrainedAxis = undefined; 
     }
 
-    // 12. 一人称視点に切り替える関数
+// 12. 一人称視点に切り替える関数
     function switchToFirstPersonView() {
         isFirstPersonView = true;
         toggleViewButton.textContent = "視点切替 (一人称)"; // ボタンテキスト更新
         
-        // 不要なカメラ操作を無効化（ズームや地表のドラッグ移動など）
-        cameraController.enableRotate = false; // 地表ドラッグでの回転を無効化
-        cameraController.enableTranslate = false; // 地表ドラッグでの移動を無効化
-        cameraController.enableZoom = false; // ホイールでのズームを無効化
-        cameraController.enableTilt = false; // チルト（傾け）操作を無効化
-        cameraController.enableLook = true; // マウス右ドラッグでの視点回転は有効にする
+        // 不要なカメラ操作を無効化
+        cameraController.enableRotate = false;
+        cameraController.enableTranslate = false;
+        cameraController.enableZoom = false;
+        cameraController.enableTilt = false;
+        cameraController.enableLook = true; // 右ドラッグでの視点回転は維持
 
-        // カメラが地面の下に行かないように、また真上/真下を向きすぎないように設定
-        // viewer.camera.constrainedAxis = Cesium.Cartesian3.UNIT_Z; // Z軸周りの回転のみ許可 (オプション)
+        // --- 開始座標を固定 ---
+        const startLongitude = 130.425408; // 指定された経度
+        const startLatitude = 33.622125;  // 指定された緯度
+        const targetHeight = 11;         // 最初の移動先の海抜高さ (ループで補正)
 
-        // 現在のカメラ位置を取得し、高さを1.5mに設定する
-        const currentPositionCartographic = Cesium.Cartographic.fromCartesian(viewer.camera.position);
-        const targetHeight = 1.5; // 目標の高さ (メートル)
-        
-        // カメラを指定の高さに移動
+        // 指定された座標の高さ1.5mにカメラを移動
         viewer.camera.flyTo({
-            destination: Cesium.Cartesian3.fromRadians(
-                currentPositionCartographic.longitude,
-                currentPositionCartographic.latitude,
-                targetHeight // 高度を1.5mに
+            destination: Cesium.Cartesian3.fromDegrees(
+                startLongitude,
+                startLatitude,
+                targetHeight // 一旦、海抜 n mに移動
             ),
             orientation: {
-                heading: viewer.camera.heading,
+                heading: Cesium.Math.toRadians(0.0), // 真北を向く
                 pitch: Cesium.Math.toRadians(0.0), // 水平視線
                 roll: 0.0
             },
             duration: 0.5 // 短いアニメーション
         });
-        
-        // カメラの高さを常に1.5mに保つための更新ループを開始
-        startFirstPersonUpdateLoop();
-    }
+
 
     // 13. 一人称視点用の更新ループ関数とリスナー解除用変数
     let firstPersonUpdateListener = null; 
@@ -180,7 +175,7 @@ window.onload = function() {
 
             const camera = viewer.camera;
             const positionCartographic = Cesium.Cartographic.fromCartesian(camera.position);
-            const targetHeight = 1.5;
+            const targetHeight = 11;
 
             // 地形データを考慮して現在の地面の高さを取得 (非同期なので注意が必要だが、ここでは簡易的に)
             // もっと正確にするには Cesium.sampleTerrainMostDetailed などを使う
