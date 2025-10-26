@@ -111,33 +111,41 @@ window.onload = function() {
         moveRight: false,
     };
 
-    // 11. 三人称視点に戻す関数
+// 11. 三人称視点に戻す関数
     function switchToThirdPersonView() {
         isFirstPersonView = false;
         if (toggleViewButton) toggleViewButton.textContent = "視点切替 (三人称)";
 
-        // デフォルトカメラ操作を有効化
+        // 【修正点】すべてのデフォルトカメラ操作を確実に有効化
         cameraController.enableRotate = true;
         cameraController.enableTranslate = true;
         cameraController.enableZoom = true;
         cameraController.enableTilt = true;
         cameraController.enableLook = true;
 
-        // 【修正点 2-1】マウス操作を Cesium のデフォルトに戻す
+        // 【修正点】マウス操作を Cesium の【定義済みデフォルト定数】を使って完全に戻す
+        // これにより、以前の設定が残ることを防ぎます
         cameraController.rotateEventTypes = Cesium.ScreenSpaceCameraController.DEFAULT_ROTATE_EVENT_TYPES;
         cameraController.translateEventTypes = Cesium.ScreenSpaceCameraController.DEFAULT_TRANSLATE_EVENT_TYPES;
         cameraController.zoomEventTypes = Cesium.ScreenSpaceCameraController.DEFAULT_ZOOM_EVENT_TYPES;
         cameraController.tiltEventTypes = Cesium.ScreenSpaceCameraController.DEFAULT_TILT_EVENT_TYPES;
-        cameraController.lookEventTypes = Cesium.ScreenSpaceCameraController.DEFAULT_LOOK_EVENT_TYPES;
+        cameraController.lookEventTypes = Cesium.ScreenSpaceCameraController.DEFAULT_LOOK_EVENT_TYPES; // 右ドラッグがLookに戻る
 
-        // ... (ループ停止、キーリスナー解除などは変更なし) ...
+        // 一人称視点ループ停止 & キー入力解除 (変更なし)
+        if (firstPersonUpdateListener) {
+            firstPersonUpdateListener();
+            firstPersonUpdateListener = null;
+        }
+        document.removeEventListener('keydown', handleKeyDown);
+        document.removeEventListener('keyup', handleKeyUp);
+        resetKeyFlags();
 
-        // カメラの軸制限とピッチ制限を解除
+        // カメラの軸制限とピッチ制限を解除 (変更なし)
         viewer.camera.constrainedAxis = undefined;
         cameraController.minimumPitch = Cesium.Math.toRadians(-90.0);
         cameraController.maximumPitch = Cesium.Math.toRadians(90.0);
 
-        // 視野角をデフォルトに戻す
+        // 視野角をデフォルトに戻す (変更なし)
         viewer.camera.frustum.fov = Cesium.Math.toRadians(60.0);
     }
 
@@ -175,7 +183,7 @@ window.onload = function() {
         // --- 開始座標を固定 (変更なし) ---
         const startLongitude = 130.425408;
         const startLatitude = 33.622125;
-        const targetHeight = 45;
+        const targetHeight = 42;
 
         viewer.camera.flyTo({
             destination: Cesium.Cartesian3.fromDegrees(startLongitude, startLatitude, targetHeight),
@@ -257,7 +265,7 @@ window.onload = function() {
 
             // --- 高さ維持処理 ---
             const positionCartographic = Cesium.Cartographic.fromCartesian(camera.position);
-            const targetHeight = 45; // 一人称視点の高さ
+            const targetHeight = 42; // 一人称視点の高さ
             
             let terrainHeight = 0;
             const cartographic = Cesium.Cartographic.fromCartesian(camera.position);
