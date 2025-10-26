@@ -4,31 +4,30 @@
     // 1. Ion トークンの設定
     Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJiYTEzNmFmYS1hNzA5LTQ2YjQtYTc0OC1iZTg3ODNhOTVlMTIiLCJpZCI6MzQ2ODE0LCJpYXQiOjE3NjE0Njg5Mjh9._9Bw9jDFFjHSKkrklCs3s_zMuPg7q3flgzezAHf7mio';
 
-    // 2. ビューアの初期化とベースマップの無効化
+    // 2. ビューアの初期化とベースマップの有効化 (最も重要な変数定義)
     var viewer = new Cesium.Viewer("cesium", {
         baseLayerPicker: false,
-        baseLayer: true // デフォルト画像を読み込まない
+        baseLayer: true 
     });
     
-
-    // 4. Google Photorealistic 3D Tiles の追加
+    // 3. Google Photorealistic 3D Tiles の追加
     viewer.scene.primitives.add(
         new Cesium.Cesium3DTileset({
             url: Cesium.IonResource.fromAssetId(2275207)
         })
     );
     
-    // 5. 初期視点の設定（高度を 500km に下げて強制的にデータ読み込みを促す）
+    // 4. 初期視点の設定
     viewer.camera.setView({
         destination: Cesium.Cartesian3.fromDegrees(138, 29, 500000), 
         orientation: {
-            heading: 0,
-            pitch: -1.4, 
-            roll: 0
+            heading: 0, pitch: -1.4, roll: 0
         }
     });
 
-    // 6. ズームイン処理の関数定義
+    // --- Entity と Button の機能 ---
+
+    // 5. ズームイン処理の関数定義
     function zoomToLocation(lon, lat, height) {
         viewer.camera.flyTo({
             destination: Cesium.Cartesian3.fromDegrees(lon, lat, height),
@@ -36,30 +35,31 @@
         });
     }
 
-    // 7. ボタンイベントリスナー
-    var button = document.getElementById("zoomToKyudai");
-
-    button.addEventListener('click', function() {
-        var kyudaiLon = 130.425757; 
-        var kyudaiLat = 33.622580;
-        var height = 100; // 建物が見える 100m に設定
-
-        zoomToLocation(kyudaiLon, kyudaiLat, height);
-    });
-
-    // 8. Entity（マーカー）の追加
+    // 6. Entity（マーカー）の追加
     viewer.entities.add({
         name: "九州大学総合研究博物館",
         position: Cesium.Cartesian3.fromDegrees(130.425728, 33.622583, 50),
-    
-    // 【修正 2】billboard の設定を削除または、単純な色付きピンに置き換える
-        point: { // 単純なピンとして定義し、CORS問題を回避
-            pixelSize: 10, // ピンのサイズ
-            color: Cesium.Color.RED, // ピンの色を赤に設定
+        point: { 
+            pixelSize: 10, 
+            color: Cesium.Color.RED, 
             outlineColor: Cesium.Color.WHITE,
             outlineWidth: 2
-    },
+        },
         description: `<h1>九州大学総合研究博物館</h1><p>ボタンでズームインするとピンが見えます。</p>`
     });
+
+    // 7. ボタンイベントリスナー
+    var button = document.getElementById("zoomToKyudai");
+
+    // button が null (見つからない) でなければ、イベントを追加する（安全策）
+    if (button) {
+        button.addEventListener('click', function() {
+            var kyudaiLon = 130.425757; 
+            var kyudaiLat = 33.622580;
+            var height = 100;
+
+            zoomToLocation(kyudaiLon, kyudaiLat, height);
+        });
+    }
     
-})(); // 最後の行
+})();
