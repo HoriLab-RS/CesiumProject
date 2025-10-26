@@ -48,7 +48,7 @@ window.onload = function() {
         
         billboard: { 
             image: redPin, // 生成したピン画像を使用
-            verticalOrigin: Cesium.VerticalOrigin.BOTTOM // ピンの底を地面に合わせる
+            verticalOrigin: Cesium.VerticalOrigin.BOTTOM, // ピンの底を地面に合わせる
             scaleByDistance: new Cesium.NearFarScalar(100.0, 1.0, 150.0, 0.0)
             // カメラ距離100mでスケール1.0 (通常サイズ)
             // カメラ距離150mでスケール0.0 (完全に消える)
