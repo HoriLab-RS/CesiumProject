@@ -9,7 +9,8 @@ window.onload = function() {
     // 2. ビューアの初期化とベースマップの有効化
     var viewer = new Cesium.Viewer("cesium", {
         baseLayerPicker: false,
-        baseLayer: true // 衛星画像を背景に描画するために有効化
+        baseLayer: true, // 衛星画像を背景に描画するために有効化
+        selectionIndicator: false, // 緑の選択枠を削除 
     });
     
     // 3. Google Photorealistic 3D Tiles の追加
