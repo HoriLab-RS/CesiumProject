@@ -61,4 +61,3 @@ window.onload = function() {
         });
     }
 }; // window.onload の終了
-});
