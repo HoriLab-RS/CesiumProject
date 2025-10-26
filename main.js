@@ -113,40 +113,52 @@ window.onload = function() {
 
 // 11. 三人称視点に戻す関数
     function switchToThirdPersonView() {
+        console.log("Switching back to Third Person View"); // デバッグ用ログ
         isFirstPersonView = false;
         if (toggleViewButton) toggleViewButton.textContent = "視点切替 (三人称)";
 
-        // 【修正点】すべてのデフォルトカメラ操作を確実に有効化
-        cameraController.enableRotate = true;
-        cameraController.enableTranslate = true;
-        cameraController.enableZoom = true;
-        cameraController.enableTilt = true;
-        cameraController.enableLook = true;
-
-        // 【修正点】マウス操作を Cesium の【定義済みデフォルト定数】を使って完全に戻す
-        // これにより、以前の設定が残ることを防ぎます
-        cameraController.rotateEventTypes = Cesium.ScreenSpaceCameraController.DEFAULT_ROTATE_EVENT_TYPES;
-        cameraController.translateEventTypes = Cesium.ScreenSpaceCameraController.DEFAULT_TRANSLATE_EVENT_TYPES;
-        cameraController.zoomEventTypes = Cesium.ScreenSpaceCameraController.DEFAULT_ZOOM_EVENT_TYPES;
-        cameraController.tiltEventTypes = Cesium.ScreenSpaceCameraController.DEFAULT_TILT_EVENT_TYPES;
-        cameraController.lookEventTypes = Cesium.ScreenSpaceCameraController.DEFAULT_LOOK_EVENT_TYPES; // 右ドラッグがLookに戻る
-
-        // 一人称視点ループ停止 & キー入力解除 (変更なし)
+        // 【修正点 1】最初に一人称視点用の更新ループを確実に停止させる
         if (firstPersonUpdateListener) {
-            firstPersonUpdateListener();
+            console.log("Removing preRender listener"); // デバッグ用ログ
+            firstPersonUpdateListener(); // リスナーを解除
             firstPersonUpdateListener = null;
+        } else {
+            console.log("No preRender listener to remove"); // デバッグ用ログ
         }
+
+        // キーボードリスナーを解除 (変更なし)
+        console.log("Removing keyboard listeners"); // デバッグ用ログ
         document.removeEventListener('keydown', handleKeyDown);
         document.removeEventListener('keyup', handleKeyUp);
         resetKeyFlags();
 
+        // 【修正点 2】すべてのカメラ操作フラグを確実に true に戻す
+        console.log("Enabling default camera controls"); // デバッグ用ログ
+        cameraController.enableRotate = true;
+        cameraController.enableTranslate = true;
+        cameraController.enableZoom = true;
+        cameraController.enableTilt = true;
+        cameraController.enableLook = true; // Look 操作も必ず有効にする
+
+        // マウス操作を Cesium のデフォルト定数を使って完全に戻す (変更なし、これが正しい方法)
+        console.log("Resetting mouse event types to defaults"); // デバッグ用ログ
+        cameraController.rotateEventTypes = Cesium.ScreenSpaceCameraController.DEFAULT_ROTATE_EVENT_TYPES;
+        cameraController.translateEventTypes = Cesium.ScreenSpaceCameraController.DEFAULT_TRANSLATE_EVENT_TYPES;
+        cameraController.zoomEventTypes = Cesium.ScreenSpaceCameraController.DEFAULT_ZOOM_EVENT_TYPES;
+        cameraController.tiltEventTypes = Cesium.ScreenSpaceCameraController.DEFAULT_TILT_EVENT_TYPES;
+        cameraController.lookEventTypes = Cesium.ScreenSpaceCameraController.DEFAULT_LOOK_EVENT_TYPES;
+
         // カメラの軸制限とピッチ制限を解除 (変更なし)
+        console.log("Resetting camera constraints"); // デバッグ用ログ
         viewer.camera.constrainedAxis = undefined;
         cameraController.minimumPitch = Cesium.Math.toRadians(-90.0);
         cameraController.maximumPitch = Cesium.Math.toRadians(90.0);
 
         // 視野角をデフォルトに戻す (変更なし)
+        console.log("Resetting FOV"); // デバッグ用ログ
         viewer.camera.frustum.fov = Cesium.Math.toRadians(60.0);
+        
+        console.log("Third Person View setup complete"); // デバッグ用ログ
     }
 
     // 12. 一人称視点に切り替える関数
@@ -183,7 +195,7 @@ window.onload = function() {
         // --- 開始座標を固定 (変更なし) ---
         const startLongitude = 130.425408;
         const startLatitude = 33.622125;
-        const targetHeight = 42;
+        const targetHeight = 41;
 
         viewer.camera.flyTo({
             destination: Cesium.Cartesian3.fromDegrees(startLongitude, startLatitude, targetHeight),
@@ -265,7 +277,7 @@ window.onload = function() {
 
             // --- 高さ維持処理 ---
             const positionCartographic = Cesium.Cartographic.fromCartesian(camera.position);
-            const targetHeight = 42; // 一人称視点の高さ
+            const targetHeight = 41; // 一人称視点の高さ
             
             let terrainHeight = 0;
             const cartographic = Cesium.Cartographic.fromCartesian(camera.position);
