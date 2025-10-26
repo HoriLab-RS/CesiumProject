@@ -53,11 +53,14 @@
     viewer.entities.add({
         name: "九州大学総合研究博物館",
         position: Cesium.Cartesian3.fromDegrees(130.425728, 33.622583, 50),
-        billboard: {
-            image: "https://cesium.com/downloads/cesiumjs/releases/1.118/Build/Widgets/Images/Cesium_Logo_overlay.png",
-            width: 32,
-            height: 32
-        },
+    
+    // 【修正 2】billboard の設定を削除または、単純な色付きピンに置き換える
+        point: { // 単純なピンとして定義し、CORS問題を回避
+            pixelSize: 10, // ピンのサイズ
+            color: Cesium.Color.RED, // ピンの色を赤に設定
+            outlineColor: Cesium.Color.WHITE,
+            outlineWidth: 2
+    },
         description: `<h1>九州大学総合研究博物館</h1><p>ボタンでズームインするとピンが見えます。</p>`
     });
     
