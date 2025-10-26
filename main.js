@@ -12,7 +12,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
         baseLayer: true 
     });
     
-    // 3. Google Photorealistic 3D Tiles の追加
+    // 3. Google Photorealistic 3D Tiles の追加ができるはず
     viewer.scene.primitives.add(
         new Cesium.Cesium3DTileset({
             url: Cesium.IonResource.fromAssetId(2275207)
