@@ -26,7 +26,7 @@ Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOi
 
 //初期の視点（カメラ）の位置 日本の上空にカメラが来るように設定。
 viewer.camera.setView({
-destination: Cesium.Cartesian3.fromDegrees(138, 29, 4000000),
+destination: Cesium.Cartesian3.fromDegrees(138, 29, 500000),
 orientation: {
 heading: 0, // 水平方向の回転度（ラジアン）
 pitch: -1.4, // 垂直方向の回転度（ラジアン） 上を見上げたり下を見下ろしたり
@@ -60,7 +60,7 @@ roll: 0
         // 九州大学博物館の座標
         var kyudaiLon = 130.425757; 
         var kyudaiLat = 33.622580;
-        var height = 400;
+        var height = 150;
 
         zoomToLocation(kyudaiLon, kyudaiLat, height);
     });
