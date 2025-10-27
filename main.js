@@ -11,15 +11,12 @@ window.onload = function() {
         baseLayerPicker: false, // ベースレイヤー選択ウィジェット非表示
         baseLayer: true,        // デフォルトの衛星画像を表示
         selectionIndicator: false // クリック時の選択インジケーター(緑枠)非表示
-    });
 
 // 3. Terrainの設置
     terrainProvider: new Cesium.CesiumTerrainProvider({ 
             url: Cesium.IonResource.fromAssetId(2767062) // Japan Regional Terrain
         })
     });
-    */
-
 
     // 3. 3D Tiles (建物のデータ) の追加
     const tileset = viewer.scene.primitives.add(
