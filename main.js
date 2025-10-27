@@ -14,11 +14,10 @@ window.onload = function() {
     });
 
 // 3. Terrainの設置
-viewer.scene.setTerrain(
-  new Cesium.Terrain(
-    Cesium.CesiumTerrainProvider.fromIonAssetId(2767062),
-  ),
-);
+terrainProvider: new Cesium.CesiumTerrainProvider({ 
+            url: Cesium.IonResource.fromAssetId(2767062) // Japan Regional Terrain
+        })
+    });
 
 
 // 3. 3D Tiles (建物のデータ) の追加
