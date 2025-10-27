@@ -16,13 +16,72 @@ html, body {
     border: 1px solid #ccc; /* 境界線をつけてセクション感を */
 }
 
-/* 画面全体を覆わないため、以前の .cesium スタイルは不要 */
-/*
-.cesium {
-    position: absolute;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
+
+/* --- ページナビゲーション (メニュー) スタイル --- */
+
+nav {
+    width: 100%;
+    background-color: #333;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    margin-bottom: 20px;
 }
-*/
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex; /* ボタンを横並びにする */
+    justify-content: center; /* 中央揃え */
+}
+
+nav ul li {
+    display: inline;
+}
+
+.menu-button {
+    background: none;
+    border: none;
+    color: white;
+    padding: 15px 25px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.menu-button:hover {
+    background-color: #575757;
+}
+
+.menu-button.active {
+    background-color: #007bff;
+    font-weight: bold;
+}
+
+/* --- サブページコンテナと個別ページスタイル --- */
+
+#page-container {
+    width: 80%;
+    margin: 0 auto;
+    min-height: 600px; /* Cesiumビューアと同じ最低限の高さを確保 */
+}
+
+.sub-page {
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    background-color: white;
+}
+
+/* Cesiumビューアを保持するコンテナ (div#cesium は非表示) */
+#cesium-view {
+    /* デフォルトで表示 */
+}
+
+/* 他のページはデフォルトで非表示 */
+#museum-intro-page, #developers-page {
+    display: none;
+}

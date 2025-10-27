@@ -15,6 +15,19 @@
 
     <header><h1>デジタル博物館へ向けて</h1></header>
 
+    <!-- メニューバーの追加 -->
+    <nav id="main-nav">
+        <a href="#" onclick="showPage('map'); return false;">Cesium</a>
+        <a href="#" onclick="showPage('about'); return false;">概要</a>
+        <a href="#" onclick="showPage('data-list'); return false;">データ一覧</a>
+    </nav>
+
+    <!--サブページコンテナの追加 -->
+    <div id="page-container">
+
+
+    <!-- Cesiumページ -->
+        <div id="map" class="sub-page">
     <section style="height: 100px; background: #f0f0f0; padding: 20px;">
         <h2>ページのトップコンテンツ</h2>
         <p>絶賛開発中です。最終更新：2025/10/27　</p>
@@ -49,6 +62,24 @@
              </ul>
         </div>
     </section>
+    </div>
+
+        <!-- 概要ページ (初期非表示) -->
+        <div id="about" class="sub-page" style="display: none;">
+            <h2>デジタル博物館について</h2>
+            <p>このページは、プロジェクトの目的や技術スタックについて説明するための場所です。</p>
+            <p>CesiumJSとGoogle Photorealistic 3D Tilesを利用して開発されています。</p>
+        </div>
+
+        <!-- データ一覧ページ (初期非表示) -->
+        <div id="data-list" class="sub-page" style="display: none;">
+            <h2>使用データ一覧</h2>
+            <p>ここに、ピンをクリックした際に遷移する予定の詳細情報が載ります。</p>
+            <p>データ名: 九州大学博物館 3Dモデル (データID: 1001)</p>
+            <p>情報ウィンドウのボタンは、このページに遷移します。</p>
+        </div>
+
+</div> <!-- page-container 終了 -->
 
     <footer>
         <p>© 2025 My Cesium Site</p>
