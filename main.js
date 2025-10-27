@@ -16,7 +16,7 @@ window.onload = function() {
     // 3. Google Photorealistic 3D Tiles の追加
     viewer.scene.primitives.add(
         new Cesium.Cesium3DTileset({
-            url: Cesium.IonResource.fromAssetId(2275207) // Google 3D TilesのアセットID
+            url: Cesium.IonResource.fromAssetId(2602291) // Japan 3D TilesのアセットID
         })
     );
 
