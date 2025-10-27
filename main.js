@@ -13,7 +13,14 @@ window.onload = function() {
         selectionIndicator: false // クリック時の選択インジケーター(緑枠)非表示
     });
 
-    // 3. Google Photorealistic 3D Tiles の追加
+    // 3. 3D Tiles の追加
+
+    viewer.scene.primitives.add(
+        new Cesium.Cesium3DTileset({
+            url: Cesium.IonResource.fromAssetId(2767062) // Japan Regional TerrainのアセットID
+        })
+    );
+
     viewer.scene.primitives.add(
         new Cesium.Cesium3DTileset({
             url: Cesium.IonResource.fromAssetId(2602291) // Japan 3D TilesのアセットID
