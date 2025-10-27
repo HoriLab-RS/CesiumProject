@@ -13,12 +13,13 @@ window.onload = function() {
         selectionIndicator: false // クリック時の選択インジケーター(緑枠)非表示
     });
 
-// Terrain (地形) の設定
+// 3. Terrainの設置
 viewer.scene.setTerrain(
   new Cesium.Terrain(
     Cesium.CesiumTerrainProvider.fromIonAssetId(2767062),
   ),
 );
+
 
 // 3. 3D Tiles (建物のデータ) の追加
 const tileset = viewer.scene.primitives.add(
