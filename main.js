@@ -25,11 +25,26 @@ window.onload = function() {
         })
     );
 
- // 3.1. 読み込み後の処理
+// 3.1. 読み込み後の処理 (✅ 位置合わせとズームを適用)
     tileset.readyPromise
-        .then(function(tileset) { // 👈 読み込みが成功した場合の処理を追加
-             // 建物セットの中心にカメラを移動し、タイル全体が見えるようにズーム
-             viewer.zoomTo(tileset, new Cesium.HeadingPitchRange(0.0, Cesium.Math.toRadians(-45.0), tileset.boundingSphere.radius * 2.5));
+        .then(function(tileset) {
+            
+            // 1. 3D Tilesを地球の表面に正しく合わせる (Tilting/Offset)
+            const boundingSphere = tileset.boundingSphere;
+            const cartographic = Cesium.Cartographic.fromCartesian(boundingSphere.center);
+            
+            // 地球の中心からデータセットの中心を指す座標の、地表（高さ0）上の位置を計算
+            const surface = Cesium.Cartesian3.fromRadians(cartographic.longitude, cartographic.latitude, 0.0);
+            
+            // ズレを計算 (地表座標 - データ中心座標)
+            const offset = Cesium.Cartesian3.subtract(surface, boundingSphere.center, new Cesium.Cartesian3());
+            
+            // ズレをデータセット全体に適用
+            tileset.modelMatrix = Cesium.Matrix4.fromTranslation(offset);
+            
+            // 2. 建物セット全体が見えるようにカメラを移動
+            viewer.zoomTo(tileset, new Cesium.HeadingPitchRange(0.0, Cesium.Math.toRadians(-45.0), boundingSphere.radius * 2.5));
+
         })
         .catch(function(error) {
             console.error(`3D Tiles の読み込み中にエラーが発生しました: ${error}`);
