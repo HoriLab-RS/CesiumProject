@@ -14,28 +14,25 @@ window.onload = function() {
     });
 
 // 3. Terrainの設置
-terrainProvider: new Cesium.CesiumTerrainProvider({ 
+    terrainProvider: new Cesium.CesiumTerrainProvider({ 
             url: Cesium.IonResource.fromAssetId(2767062) // Japan Regional Terrain
         })
     });
+    */
 
 
-// 3. 3D Tiles (建物のデータ) の追加
-const tileset = viewer.scene.primitives.add(
-    new Cesium.Cesium3DTileset({
-        url: Cesium.IonResource.fromAssetId(2602291) // Japan 3D TilesのアセットID
-    })
-);
+    // 3. 3D Tiles (建物のデータ) の追加
+    const tileset = viewer.scene.primitives.add(
+        new Cesium.Cesium3DTileset({
+            url: Cesium.IonResource.fromAssetId(2602291) // Japan 3D TilesのアセットID
+        })
+    );
 
-// 3.1. 読み込み後の処理（ズーム）
-tileset.readyPromise
-    .then(function(tileset) {
-        // 建物セットの中心にカメラを移動 (ここでは初期視点を優先するためコメントアウト/削除推奨)
-        // viewer.zoomTo(tileset, new Cesium.HeadingPitchRange(0, -0.5, tileset.boundingSphere.radius * 2.0));
-    })
-    .catch(function(error) {
-        console.error(`3D Tiles の読み込み中にエラーが発生しました: ${error}`);
-    });
+    // 3.1. 読み込み後の処理
+    tileset.readyPromise
+        .catch(function(error) {
+            console.error(`3D Tiles の読み込み中にエラーが発生しました: ${error}`);
+        });
 
     // 4. 初期カメラ視点の設定 (福岡市上空 20km)
     viewer.camera.setView({
