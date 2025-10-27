@@ -12,7 +12,7 @@ window.onload = function() {
         baseLayer: true,        // デフォルトの衛星画像を表示
         selectionIndicator: false, // クリック時の選択インジケーター(緑枠)非表示
 
-        // Terrain Providerの設定をViewer初期化オブジェクト内に移動
+        // 地形プロバイダーを設定
         terrainProvider: new Cesium.CesiumTerrainProvider({ 
             url: Cesium.IonResource.fromAssetId(2767062) // Japan Regional Terrain
         })
@@ -25,21 +25,15 @@ window.onload = function() {
         })
     );
 
-// 3.1. 読み込み後の処理 (✅ 位置合わせとズームを適用)
+    // 3.1. 読み込み後の処理 (✅ 位置合わせとズームを適用)
     tileset.readyPromise
         .then(function(tileset) {
             
             // 1. 3D Tilesを地球の表面に正しく合わせる (Tilting/Offset)
             const boundingSphere = tileset.boundingSphere;
             const cartographic = Cesium.Cartographic.fromCartesian(boundingSphere.center);
-            
-            // 地球の中心からデータセットの中心を指す座標の、地表（高さ0）上の位置を計算
             const surface = Cesium.Cartesian3.fromRadians(cartographic.longitude, cartographic.latitude, 0.0);
-            
-            // ズレを計算 (地表座標 - データ中心座標)
             const offset = Cesium.Cartesian3.subtract(surface, boundingSphere.center, new Cesium.Cartesian3());
-            
-            // ズレをデータセット全体に適用
             tileset.modelMatrix = Cesium.Matrix4.fromTranslation(offset);
             
             // 2. 建物セット全体が見えるようにカメラを移動
@@ -47,12 +41,12 @@ window.onload = function() {
 
         })
         .catch(function(error) {
+            // ✅ 修正済み: エラーオブジェクト自体を出力
             console.error(`3D Tiles の読み込み中にエラーが発生しました: ${error}`);
         });
 
     // 4. 初期カメラ視点の設定 (福岡市上空 20km) 
-    // ⚠️ このsetViewブロックは、上のzoomToが優先されるように、削除するかコメントアウトしてください。
-    /*
+    // ✅ 起動直後に日本に移動させるため、この設定は残します。
     viewer.camera.setView({
         destination: Cesium.Cartesian3.fromDegrees(130.360732, 33.565884, 20000), // 経度, 緯度, 高度(m)
         orientation: {
@@ -61,7 +55,6 @@ window.onload = function() {
             roll: 0.0                            // 水平
         }
     });
-　　*/
 
     // 5. 指定地点へズームする関数
     function zoomToLocation(lon, lat, height) {
