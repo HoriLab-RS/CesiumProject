@@ -14,16 +14,17 @@ window.onload = function() {
     });
 
 // Terrain (地形) の設定
-viewer.terrainProvider = new Cesium.CesiumTerrainProvider({
-    url: Cesium.IonResource.fromAssetId(2767062) // 正しいアセットID: 2767062
-});
+viewer.scene.setTerrain(
+  new Cesium.Terrain(
+    Cesium.CesiumTerrainProvider.fromIonAssetId(2767062),
+  ),
+);
 
 // 3D Tiles (建物のデータ) の追加
-const buildingTileset = viewer.scene.primitives.add(
-    new Cesium.Cesium3DTileset({
-        url: Cesium.IonResource.fromAssetId(2602291), // 正しいアセットID: 2602291
-    })
+const tileset = viewer.scene.primitives.add(
+  await Cesium.Cesium3DTileset.fromIonAssetId(2602291),
 );
+
 
 // 読み込むのを待つ
 buildingTileset.readyPromise
