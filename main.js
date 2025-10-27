@@ -46,6 +46,7 @@ window.onload = function() {
             roll: 0.0                            // 水平
         }
     });
+　　*/
 
     // 5. 指定地点へズームする関数
     function zoomToLocation(lon, lat, height) {
