@@ -10,10 +10,10 @@ window.onload = function() {
     var viewer = new Cesium.Viewer("cesium", {
         baseLayerPicker: false, // ベースレイヤー選択ウィジェット非表示
         baseLayer: true,        // デフォルトの衛星画像を表示
-        selectionIndicator: false // クリック時の選択インジケーター(緑枠)非表示
+        selectionIndicator: false, // クリック時の選択インジケーター(緑枠)非表示
 
-// 3. Terrainの設置
-    terrainProvider: new Cesium.CesiumTerrainProvider({ 
+        // Terrain Providerの設定をViewer初期化オブジェクト内に移動
+        terrainProvider: new Cesium.CesiumTerrainProvider({ 
             url: Cesium.IonResource.fromAssetId(2767062) // Japan Regional Terrain
         })
     });
@@ -30,6 +30,7 @@ window.onload = function() {
         .catch(function(error) {
             console.error(`3D Tiles の読み込み中にエラーが発生しました: ${error}`);
         });
+
 
     // 4. 初期カメラ視点の設定 (福岡市上空 20km)
     viewer.camera.setView({
