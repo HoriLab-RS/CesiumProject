@@ -20,17 +20,18 @@ viewer.scene.setTerrain(
   ),
 );
 
-// 3D Tiles (建物のデータ) の追加
+// 3. 3D Tiles (建物のデータ) の追加
 const tileset = viewer.scene.primitives.add(
-  await Cesium.Cesium3DTileset.fromIonAssetId(2602291),
+    new Cesium.Cesium3DTileset({
+        url: Cesium.IonResource.fromAssetId(2602291) // Japan 3D TilesのアセットID
+    })
 );
 
-
-// 読み込むのを待つ
-buildingTileset.readyPromise
+// 3.1. 読み込み後の処理（ズーム）
+tileset.readyPromise
     .then(function(tileset) {
-        // 建物セットの中心にカメラを移動
-        viewer.zoomTo(tileset, new Cesium.HeadingPitchRange(0, -0.5, tileset.boundingSphere.radius * 2.0));
+        // 建物セットの中心にカメラを移動 (ここでは初期視点を優先するためコメントアウト/削除推奨)
+        // viewer.zoomTo(tileset, new Cesium.HeadingPitchRange(0, -0.5, tileset.boundingSphere.radius * 2.0));
     })
     .catch(function(error) {
         console.error(`3D Tiles の読み込み中にエラーが発生しました: ${error}`);
