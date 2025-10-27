@@ -25,14 +25,19 @@ window.onload = function() {
         })
     );
 
-    // 3.1. 読み込み後の処理
+ // 3.1. 読み込み後の処理
     tileset.readyPromise
+        .then(function(tileset) { // 👈 読み込みが成功した場合の処理を追加
+             // 建物セットの中心にカメラを移動し、タイル全体が見えるようにズーム
+             viewer.zoomTo(tileset, new Cesium.HeadingPitchRange(0.0, Cesium.Math.toRadians(-45.0), tileset.boundingSphere.radius * 2.5));
+        })
         .catch(function(error) {
             console.error(`3D Tiles の読み込み中にエラーが発生しました: ${error}`);
         });
 
-
-    // 4. 初期カメラ視点の設定 (福岡市上空 20km)
+    // 4. 初期カメラ視点の設定 (福岡市上空 20km) 
+    // ⚠️ このsetViewブロックは、上のzoomToが優先されるように、削除するかコメントアウトしてください。
+    /*
     viewer.camera.setView({
         destination: Cesium.Cartesian3.fromDegrees(130.360732, 33.565884, 20000), // 経度, 緯度, 高度(m)
         orientation: {
