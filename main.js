@@ -3,66 +3,95 @@ window.onload = function() {
 
     "use strict";
 
-    // 1. Cesium Ion トークンの設定
-    Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJiYTEzNmFmYS1hNzA5LTQ2YjQtYTc0OC1iZTg3ODNhOTVlMTIiLCJpZCI6MzQ2ODE0LCJpYXQiOjE3NjE0Njg5Mjh9._9Bw9jDFFjHSKkrklCs3s_zMuPg7q3flgzezAHf7mio';
+    // 1. Cesium Ion トークンは不要 (ローカルデータ利用のため)
 
     // 2. ビューアの初期化
     var viewer = new Cesium.Viewer("cesium", {
-        baseLayerPicker: false, // ベースレイヤー選択ウィジェット非表示
-        baseLayer: true,        // デフォルトの衛星画像を表示
-        selectionIndicator: false, // クリック時の選択インジケーター(緑枠)非表示
-
-        // 地形プロバイダーを設定
-        terrainProvider: new Cesium.CesiumTerrainProvider({ 
-            url: Cesium.IonResource.fromAssetId(2767062) // Japan Regional Terrain
-        })
+        baseLayerPicker: false,
+        // imageryProvider を指定して、デフォルトの画像レイヤー読み込みを完全に停止
+        imageryProvider: false, 
+        selectionIndicator: false, 
+        // 401エラー回避のため、楕円体地形プロバイダーを指定
+        terrainProvider: new Cesium.EllipsoidTerrainProvider()
     });
 
-    // 3. 3D Tiles (建物のデータ) の追加
-    const tileset = viewer.scene.primitives.add(
-        new Cesium.Cesium3DTileset({
-            url: Cesium.IonResource.fromAssetId(2602291) // Japan 3D TilesのアセットID
+    // 2.1. ベースマップ画像 (OSM - 地面を見やすくするため追加)
+    viewer.imageryLayers.addImageryProvider(
+        new Cesium.OpenStreetMapImageryProvider({
+            url : 'https://a.tile.openstreetmap.org/'
         })
     );
 
-    // 3.1. 読み込み後の処理 (✅ 位置合わせとズームを適用)
-    tileset.readyPromise
+    // 3. 3D Tiles データのパス定数定義
+    const BLD_FOLDER_NAME = '40130_fukuoka-shi_city_2024_citygml_1_op_bldg_3dtiles_40131_higashi-ku_lod2';
+
+    // 3.2. 建物データ (BLD - Building) の追加
+    const buildingTileset = viewer.scene.primitives.add(
+        new Cesium.Cesium3DTileset({
+            url: `plateau_3dtiles/${BLD_FOLDER_NAME}/tileset.json` 
+        })
+    );
+
+   // 8. 視点モードの状態管理
+    let isFirstPersonView = false; // 現在が一人称視点かどうか
+
+    // 9. 視点切り替えボタン
+    const toggleViewButton = document.getElementById("toggleView");
+
+    // 10. カメラ制御関連の変数
+    const scene = viewer.scene;
+    const cameraController = scene.screenSpaceCameraController;
+    const FIRST_PERSON_MOVE_SPEED = 10.0; // 一人称視点での移動速度 (m/秒)
+    const keyFlags = { // 押されているキーの状態
+        moveForward: false,
+        moveBackward: false,
+        moveLeft: false,
+        moveRight: false,
+    };
+
+    // 14. 視点切り替えボタンのイベントリスナー
+    if (toggleViewButton) {
+        toggleViewButton.addEventListener('click', function() {
+            if (isFirstPersonView) {
+                switchToThirdPersonView();
+            } else {
+                switchToFirstPersonView();
+            }
+        });
+    }
+
+    // 4. 読み込み後の処理 
+    // ズームは buildingTileset の読み込み完了を待って行います。
+    buildingTileset.readyPromise
         .then(function(tileset) {
-            
-            // 1. 3D Tilesを地球の表面に正しく合わせる (Tilting/Offset)
+            // ズーム処理
             const boundingSphere = tileset.boundingSphere;
-            const cartographic = Cesium.Cartographic.fromCartesian(boundingSphere.center);
-            const surface = Cesium.Cartesian3.fromRadians(cartographic.longitude, cartographic.latitude, 0.0);
-            const offset = Cesium.Cartesian3.subtract(surface, boundingSphere.center, new Cesium.Cartesian3());
-            tileset.modelMatrix = Cesium.Matrix4.fromTranslation(offset);
-            
-            // 2. 建物セット全体が見えるようにカメラを移動
             viewer.zoomTo(tileset, new Cesium.HeadingPitchRange(0.0, Cesium.Math.toRadians(-45.0), boundingSphere.radius * 2.5));
 
         })
         .catch(function(error) {
-            // ✅ 修正済み: エラーオブジェクト自体を出力
-            console.error(`3D Tiles の読み込み中にエラーが発生しました: ${error}`);
+            console.error(`建物データの読み込み中にエラーが発生しました: ${error}`);
         });
 
-    // 4. 初期カメラ視点の設定 (福岡市上空 20km) 
-    // ✅ 起動直後に日本に移動させるため、この設定は残します。
+    // 5. 初期カメラ視点の設定 (ズーム失敗時のバックアップ) 
     viewer.camera.setView({
-        destination: Cesium.Cartesian3.fromDegrees(130.360732, 33.565884, 20000), // 経度, 緯度, 高度(m)
+        destination: Cesium.Cartesian3.fromDegrees(130.360732, 33.565884, 20000), // 福岡市上空へ移動
         orientation: {
-            heading: Cesium.Math.toRadians(0.0),   // 北向き
-            pitch: Cesium.Math.toRadians(-85.0), // ほぼ真下を見る角度
-            roll: 0.0                            // 水平
+            heading: Cesium.Math.toRadians(0.0),
+            pitch: Cesium.Math.toRadians(-85.0),
+            roll: 0.0
         }
     });
-
-    // 5. 指定地点へズームする関数
-    function zoomToLocation(lon, lat, height) {
-        viewer.camera.flyTo({
-            destination: Cesium.Cartesian3.fromDegrees(lon, lat, height),
-            duration: 3 // 3秒かけて移動
-        });
-    }
+    
+    //⚠️ 注意：以下の行は、viewer.zoomToが実行されない場合のバックアップとして残しています
+    viewer.camera.setView({
+        destination: Cesium.Cartesian3.fromDegrees(130.360732, 33.565884, 20000), // 福岡市上空へ移動
+        orientation: {
+            heading: Cesium.Math.toRadians(0.0),
+            pitch: Cesium.Math.toRadians(-85.0),
+            roll: 0.0
+        }
+    });
 
     // 6. 九州大学博物館マーカー(Entity)の追加
     const pinBuilder = new Cesium.PinBuilder();
@@ -99,6 +128,13 @@ window.onload = function() {
         }
     });
 
+function zoomToLocation(lon, lat, height) {
+    viewer.camera.flyTo({
+        destination: Cesium.Cartesian3.fromDegrees(lon, lat, height),
+        duration: 3 
+    });
+}
+
     // 7. 「九州大学博物館へズーム」ボタンの処理
     var zoomButton = document.getElementById("zoomToKyudai");
     if (zoomButton) {
@@ -112,24 +148,12 @@ window.onload = function() {
         });
     }
 
+    // 13. 一人称視点用の更新ループ (移動、高さ維持、ロール固定)
+    let firstPersonUpdateListener = null; // ループ解除用
+    let lastTime = null; // 前フレームの時刻
+
+
     // --- 視点切り替え機能 & 一人称視点移動 ---
-
-    // 8. 視点モードの状態管理
-    let isFirstPersonView = false; // 現在が一人称視点かどうか
-
-    // 9. 視点切り替えボタン
-    const toggleViewButton = document.getElementById("toggleView");
-
-    // 10. カメラ制御関連の変数
-    const scene = viewer.scene;
-    const cameraController = scene.screenSpaceCameraController;
-    const FIRST_PERSON_MOVE_SPEED = 10.0; // 一人称視点での移動速度 (m/秒)
-    const keyFlags = { // 押されているキーの状態
-        moveForward: false,
-        moveBackward: false,
-        moveLeft: false,
-        moveRight: false,
-    };
 
     // 11. 三人称視点に戻す関数
     function switchToThirdPersonView() {
@@ -268,8 +292,6 @@ window.onload = function() {
     }
 
     // 13. 一人称視点用の更新ループ (移動、高さ維持、ロール固定)
-    let firstPersonUpdateListener = null; // ループ解除用
-    let lastTime = null; // 前フレームの時刻
     function startFirstPersonUpdateLoop() {
         // 古いループがあれば解除
         if (firstPersonUpdateListener) firstPersonUpdateListener();
@@ -344,15 +366,6 @@ window.onload = function() {
         });
     }
 
-    // 14. 視点切り替えボタンのイベントリスナー
-    if (toggleViewButton) {
-        toggleViewButton.addEventListener('click', function() {
-            if (isFirstPersonView) {
-                switchToThirdPersonView();
-            } else {
-                switchToFirstPersonView();
-            }
-        });
-    }
+
 
 }; // window.onload の終了
